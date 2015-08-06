@@ -1,0 +1,11 @@
+# CMake files
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+
+# Eclipse CDT files
+.metadata
+.cproject
+.project
+RemoteSystemsTempFiles
