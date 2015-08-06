@@ -68,7 +68,7 @@ void LevelLoadingState::loadMap()
   mLevelLoaded = true;
 }
 
-const ibrengine::Map* LevelLoadingState::loadedMap()
+ibrengine::Map* LevelLoadingState::loadedMap() // TODO: use smart ptr.
 {
   return mLoadedMap;
 }

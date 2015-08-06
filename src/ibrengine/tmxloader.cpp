@@ -20,7 +20,7 @@
 namespace ibrengine
 {
 
-const Map* TmxLoader::loadMap(const std::string &tmxPath)
+Map* TmxLoader::loadMap(const std::string &tmxPath)
 {
   std::ifstream tmxFile(tmxPath);
   if (tmxFile.is_open())
@@ -138,22 +138,34 @@ TmxLoader::parseTileset(Map *map, const rapidxml::xml_node<char> *tilesetNode)
     imgAttr = imgAttr->next_attribute();
   }
 
-  // Parsing 'anim_id' property.
-  int animId = -1;
-  const rapidxml::xml_node<char> *propertiesNode = tilesetNode->first_node("properties");
-  if (propertiesNode != nullptr)
-  {
-    const rapidxml::xml_node<char> *propertyNode = propertiesNode->first_node("property");
-    if (propertiesNode != nullptr)
-      animId = utils::stdStringToInt(propertyNode->first_attribute("value")->value());
-  }
-
   // Parsing animation.
   const rapidxml::xml_node<char> *tileNode = tilesetNode->first_node("tile");
   if (tileNode != nullptr)
   {
+    int tileId = utils::stdStringToInt(tileNode->first_attribute("id")->value());
+    // Parsing 'anim_id' property.
+    int animId = -1;
+    const rapidxml::xml_node<char> *propertiesNode = tileNode->first_node("properties");
+    if (propertiesNode != nullptr)
+    {
+      const rapidxml::xml_node<char> *propertyNode = propertiesNode->first_node("property");
+      if (propertiesNode != nullptr)
+        animId = utils::stdStringToInt(propertyNode->first_attribute("value")->value());
+    }
     const rapidxml::xml_node<char> *animationNode = tileNode->first_node("animation");
     map->addAnimation(this->parseAnimation(firstTileId, animId, animationNode));
+
+    // Parsing collision objects.
+    const rapidxml::xml_node<char> *objsNode = tileNode->first_node("objectgroup");
+    if (objsNode != nullptr)
+    {
+      const rapidxml::xml_node<char> *objNode = objsNode->first_node("object");
+      while (objNode != nullptr)
+      {
+        // TODO add it somewhere this->parseObject(objNode));
+        objNode = objNode->next_sibling("object");
+      }
+    }
   }
 
   std::shared_ptr<Tileset> tSet =
@@ -277,6 +289,7 @@ TmxLoader::parseObject(const rapidxml::xml_node<char> *objNode)
     if (objNode->first_node("ellipse") != nullptr)
       shapeType = SimpleShape::Type::Circle;
     std::unique_ptr<SimpleShape> shape(new SimpleShape(name, shapeType));
+    this->parseProperties(shape.get(), objNode);
     shape->setPosition(pos);
     shape->setSize(sf::Vector2i(w, h));
     shape->setType(type);
@@ -291,6 +304,7 @@ TmxLoader::parseObject(const rapidxml::xml_node<char> *objNode)
     shapeType = ComplexShape::Type::Polyline;
   }
   std::unique_ptr<ComplexShape> shape(new ComplexShape(name, shapeType));
+  this->parseProperties(shape.get(), objNode);
   this->parsePoints(objInnerNode, shape.get());
   shape->setType(type);
   return std::move(shape);
@@ -362,6 +376,21 @@ void TmxLoader::parseLayers(Map *map, const rapidxml::xml_node<char> *mapNode)
     else if (strcmp(innerNode->name(), "objectgroup") == 0)
       map->addLayer(this->parseObjectLayer(innerNode));
     innerNode = innerNode->next_sibling();
+  }
+}
+
+void TmxLoader::parseProperties(MapObject *mapObj, const rapidxml::xml_node<char> *objNode)
+{
+  const rapidxml::xml_node<char> *propsNode = objNode->first_node("properties");
+  if (propsNode == nullptr)
+    return;
+  const rapidxml::xml_node<char> *propNode = propsNode->first_node("property");
+  while (propNode != nullptr)
+  {
+    mapObj->addProperty(
+      propNode->first_attribute("name")->value(),
+      propNode->first_attribute("value")->value());
+    propNode = propNode->next_sibling("property");
   }
 }
 

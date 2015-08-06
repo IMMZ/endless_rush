@@ -25,50 +25,23 @@ void InGameState::draw(sf::RenderTarget &target)
   if (mRenderer.get() == nullptr)
     mRenderer.reset(new ibrengine::MapRenderer(target));
   mRenderer->renderMap(mMap);
+  mGameWorld->draw(target);
 }
 
 void InGameState::handleInput(Input::Action act)
 {
-  int fr1 = mMap->getAnimation(1)->getFramesCount();
-  int fr2 = mMap->getAnimation(2)->getFramesCount();
-  std::cout << "fr1 = " << fr1 << "; fr2 " << fr2 << std::endl;
-  const sf::View *defaultView = &this->getRenderTarget()->getView(); // TODO: extra
-  if (act == Input::Action::Pause)
-    this->requestStateChange(GameState::Pause);
-  else if (act == Input::Action::Right)
-  {
-    sf::View view(defaultView->getCenter(), defaultView->getSize());
-    view.move(10.0f, 0.0f);
-    this->getRenderTarget()->setView(view);
-  }
-  else if (act == Input::Action::Left)
-  {
-    sf::View view(defaultView->getCenter(), defaultView->getSize());
-    view.move(-10.0f, 0.0f);
-    this->getRenderTarget()->setView(view);
-  }
-  else if (act == Input::Action::Down)
-  {
-    sf::View view(defaultView->getCenter(), defaultView->getSize());
-    view.move(0.0f, 10.0f);
-    this->getRenderTarget()->setView(view);
-  }
-  else if (act == Input::Action::Up)
-  {
-    sf::View view(defaultView->getCenter(), defaultView->getSize());
-    view.move(0.0f, -10.0f);
-    this->getRenderTarget()->setView(view);
-  }
+  mGameWorld->handleInput(act);
 }
 
 void InGameState::update()
 {
-  // TODO: implement
+  mGameWorld->update();
 }
 
-void InGameState::setMap(const ibrengine::Map *map)
+void InGameState::setMap(ibrengine::Map *map)
 {
   mMap = map;
+  mGameWorld.reset(new GameWorld(mMap));
 }
 
 } // namespace internal

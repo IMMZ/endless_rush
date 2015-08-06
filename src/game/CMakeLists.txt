@@ -12,7 +12,9 @@ set(SRC
   ingamestate.cpp
   introstate.cpp
   levelloadingstate.cpp
+  maincharacter.cpp
   menustate.cpp
+  mortalobject.cpp
   pausestate.cpp
   settings.cpp
   main.cpp)

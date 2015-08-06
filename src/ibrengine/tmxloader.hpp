@@ -24,7 +24,7 @@ class Tileset;
 class TmxLoader
 {
 public:
-  const Map* loadMap(const std::string &tmxPath);
+  Map* loadMap(const std::string &tmxPath);
 
 private:
   Map* parseMap(const rapidxml::xml_node<char> *mapNode);
@@ -40,6 +40,7 @@ private:
   void parsePoints(const rapidxml::xml_node<char> *polygonNode, ComplexShape *shape);
   void parseLayerData(TileLayer *layer, const rapidxml::xml_node<char> *dataNode);
   void parseLayers(Map *map, const rapidxml::xml_node<char> *mapNode);
+  void parseProperties(MapObject *mapObj, const rapidxml::xml_node<char> *objNode);
 
   std::unique_ptr<rapidxml::xml_document<char>> mXmlDoc;
   std::unique_ptr<char[]> mFileBytes; // The bytes should exist while parsing.

@@ -136,9 +136,23 @@ void Map::addAnimation(const std::shared_ptr<Animation> &anim)
   mAnimations.insert(std::make_pair(anim.get()->getId(), anim));
 }
 
-const Animation* Map::getAnimation(int animId) const
+Animation* Map::getAnimation(int animId)
 {
   return mAnimations.at(animId).get();
+}
+
+void Map::addCollisionObject(int tileId, const std::shared_ptr<MapObject> &collisionObj)
+{
+  mCollisionObjs.insert(std::make_pair(tileId, collisionObj));
+}
+
+/*
+ * At this time we support only one object for tile.
+ * TODO: make multiply or single object.
+ */
+MapObject* Map::getCollisionObject(int tileId)
+{
+  mCollisionObjs.equal_range(tileId).first->second.get();
 }
 
 } // namespace ibrengine

@@ -34,7 +34,7 @@ public:
 
   void setMapFile(const sf::String &mapFilePath);
   void loadMap();
-  const ibrengine::Map* loadedMap();
+  ibrengine::Map* loadedMap();
 
 private:
   static const int PRESS_ENTER_TEXT_BLINK_INTERVAL_MS = 500;
@@ -46,7 +46,7 @@ private:
   sf::Font mUsedFont;
   sf::String mMapFile;
   sf::Clock mTimer;
-  const ibrengine::Map *mLoadedMap = nullptr;
+  ibrengine::Map *mLoadedMap = nullptr;
   bool mTextureLoaded = false;
   bool mLevelLoaded = false;
   bool mPressEnterTextVisible = true;

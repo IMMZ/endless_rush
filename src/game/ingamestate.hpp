@@ -5,6 +5,8 @@
 
 #include "igamestate.hpp"
 
+#include "gameworld.hpp"
+
 #include <maprenderer.hpp>
 
 #include <memory>
@@ -29,11 +31,13 @@ public:
   void handleInput(Input::Action act) override;
   void update() override;
 
-  void setMap(const ibrengine::Map *map);
+  void setMap(ibrengine::Map *map);
 
 private:
   std::unique_ptr<ibrengine::MapRenderer> mRenderer;
-  const ibrengine::Map *mMap = nullptr;
+  std::unique_ptr<GameWorld> mGameWorld;
+  ibrengine::Map *mMap = nullptr;
+
 };
 
 } // namespace internal

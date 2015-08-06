@@ -46,7 +46,7 @@ private:
     mPauseState,
     mTitlesState;
   GameState mState = GameState::Menu;
-  const ibrengine::Map *mCurrentMap = nullptr;
+  ibrengine::Map *mCurrentMap = nullptr;
 };
 
 #endif // GAME_HPP
