@@ -137,15 +137,20 @@ void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
       AnimatableObject *animObj = dynamic_cast<AnimatableObject*>(mapObj.get());
       TileObject *tileObj = dynamic_cast<TileObject*>(mapObj.get());
       sf::Sprite *sprite = nullptr;
+
+      /*
+       * When setting the position we should subtract the object width from the y
+       * position as Tiled saves bottom point as y when SFML draws the top one.
+       */
       if (animObj != nullptr)
       {
         sprite = &this->getSprite(animObj->getCurrentTileId());
-        sprite->setPosition(animObj->getPosition().x, animObj->getPosition().y);
+        sprite->setPosition(animObj->getPosition().x, animObj->getPosition().y - sprite->getLocalBounds().height);
       }
       else if (tileObj != nullptr)
       {
         sprite = &this->getSprite(tileObj->getTileId());
-        sprite->setPosition(tileObj->getPosition().x, tileObj->getPosition().y);
+        sprite->setPosition(tileObj->getPosition().x, tileObj->getPosition().y - sprite->getLocalBounds().height);
       }
       if (layer->getOpacity() < 1.0f)
       {
