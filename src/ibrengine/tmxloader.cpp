@@ -155,7 +155,8 @@ TmxLoader::parseTileset(Map *map, const rapidxml::xml_node<char> *tilesetNode)
         animId = utils::stdStringToInt(propertyNode->first_attribute("value")->value());
     }
     const rapidxml::xml_node<char> *animationNode = tileNode->first_node("animation");
-    map->addAnimation(this->parseAnimation(firstTileId, animId, animationNode));
+    if (animationNode != nullptr)
+      map->addAnimation(this->parseAnimation(firstTileId, animId, animationNode));
 
     // Parsing collision objects.
     const rapidxml::xml_node<char> *objsNode = tileNode->first_node("objectgroup");
