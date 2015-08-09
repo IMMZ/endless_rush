@@ -37,7 +37,7 @@ public:
   MainCharacter *getMainCharacter();
 
 private:
-  void initMainCharacter(const ibrengine::MapObject *mapObj);
+  void initMainCharacter(ibrengine::MapObject *mapObj);
 
   ibrengine::Map *mMap;
   std::unique_ptr<MainCharacter> mMainCharacter;

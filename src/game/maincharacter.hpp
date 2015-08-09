@@ -9,23 +9,34 @@
 
 #include <array>
 
+namespace ibrengine
+{
+
+class AnimatableObject;
+
+}
+
 class MainCharacter: public MortalObject
 {
 public:
-  enum class Animation
+  enum class State
   {
-    WalkRight,
-    WalkLeft,
+    Staying,
+    WalkingR,
+    WalkingL,
+    Beating,
+    Shooting = Beating
   };
 
-  MainCharacter(); // TODO: extra
-  void setAnimation(Animation, ibrengine::Animation *anim);
-  const ibrengine::Animation* getCurrentAnimation() const;
-  void setCurrentAnimation(Animation anim);
+  MainCharacter(ibrengine::MapObject *mapObj);
+
+  State getState() const;
+  void setState(State s);
+  void update();
 
 private:
-  std::array<ibrengine::Animation*, 2> mAnimations;
-  ibrengine::Animation *mCurrentAnimation;
+  ibrengine::AnimatableObject *mAnimObj = nullptr;
+  State mState = State::Staying;
 };
 
 #endif // MAINCHARACTER_HPP

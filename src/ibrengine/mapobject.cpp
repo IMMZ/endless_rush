@@ -74,4 +74,48 @@ bool MapObject::hasProperty(const sf::String &propertyName) const
   return !(mProperties.find(propertyName) == mProperties.end());
 }
 
+MapObject::PropertyIterator MapObject::propertiesBegin()
+{
+ return mProperties.begin();
+}
+
+MapObject::PropertyConstIterator MapObject::propertiesBegin() const
+{
+  return mProperties.begin();
+}
+
+MapObject::PropertyReverseIterator MapObject::propertiesRBegin()
+{
+  return mProperties.rbegin();
+}
+
+MapObject::PropertyConstReverseIterator MapObject::propertiesRBegin() const
+{
+  return mProperties.rbegin();
+}
+
+MapObject::PropertyIterator MapObject::propertiesEnd()
+{
+  return mProperties.end();
+}
+
+MapObject::PropertyConstIterator MapObject::propertiesEnd() const
+{
+  return mProperties.end();
+}
+
+MapObject::PropertyReverseIterator MapObject::propertiesREnd()
+{
+  return mProperties.rend();
+}
+
+MapObject::PropertyConstReverseIterator MapObject::propertiesREnd() const
+{
+  return mProperties.rend();
+}
+
+void MapObject::update()
+{
+}
+
 } // namespace ibrengine

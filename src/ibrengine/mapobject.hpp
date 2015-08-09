@@ -14,6 +14,11 @@ namespace ibrengine
 class MapObject
 {
 public:
+  typedef std::map<sf::String, sf::String>::iterator PropertyIterator;
+  typedef std::map<sf::String, sf::String>::const_iterator PropertyConstIterator;
+  typedef std::map<sf::String, sf::String>::reverse_iterator PropertyReverseIterator;
+  typedef std::map<sf::String, sf::String>::const_reverse_iterator PropertyConstReverseIterator;
+
   MapObject(); // TODO: extra?
   explicit MapObject(const sf::String &name);
   virtual ~MapObject();
@@ -31,6 +36,16 @@ public:
   void addProperty(const sf::String &propertyName, const sf::String &propertyValue);
   const sf::String& getProperty(const sf::String &propertyName) const;
   bool hasProperty(const sf::String &propertyName) const;
+  PropertyIterator propertiesBegin();
+  PropertyConstIterator propertiesBegin() const;
+  PropertyReverseIterator propertiesRBegin();
+  PropertyConstReverseIterator propertiesRBegin() const;
+  PropertyIterator propertiesEnd();
+  PropertyConstIterator propertiesEnd() const;
+  PropertyReverseIterator propertiesREnd();
+  PropertyConstReverseIterator propertiesREnd() const;
+
+  virtual void update();
 
 
 private:

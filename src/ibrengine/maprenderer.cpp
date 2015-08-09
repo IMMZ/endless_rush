@@ -2,8 +2,11 @@
 
 #include "maprenderer.hpp"
 
+#include "animatableobject.hpp"
 #include "map.hpp"
+#include "objectlayer.hpp"
 #include "tilelayer.hpp"
+#include "tileobject.hpp"
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
@@ -11,8 +14,8 @@
 #include <SFML/Graphics/Text.hpp> // todo remove
 
 #include <iostream> // TODO: remove
+
 /*
- * TODO: Support opacue layers.
  * TODO: Render objects.
  */
 
@@ -39,8 +42,11 @@ void MapRenderer::renderMap(const Map *map)
   for (Map::LayerConstIterator i = map->layersBegin(); i != map->layersEnd(); ++i)
   {
     TileLayer *tLayer = dynamic_cast<TileLayer*>(i->get());
+    ObjectLayer *objLayer = dynamic_cast<ObjectLayer*>(i->get());
     if (tLayer != nullptr && tLayer->isVisible())
       this->renderTileLayer(tLayer);
+    else if (objLayer != nullptr && objLayer->isVisible())
+      this->renderObjectLayer(objLayer);
   }
 }
 
@@ -118,6 +124,36 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
         sprite.setPosition(x * mMap->getTileW(), y * mMap->getTileH());
         mRenderTarget.draw(sprite);
       }
+    }
+  }
+}
+
+void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
+{
+  for (const std::shared_ptr<MapObject> &mapObj: *layer)
+  {
+    if (mapObj->isVisible() && dynamic_cast<DrawableObject*>(mapObj.get()) != nullptr)
+    {
+      AnimatableObject *animObj = dynamic_cast<AnimatableObject*>(mapObj.get());
+      TileObject *tileObj = dynamic_cast<TileObject*>(mapObj.get());
+      sf::Sprite *sprite = nullptr;
+      if (animObj != nullptr)
+      {
+        sprite = &this->getSprite(animObj->getCurrentTileId());
+        sprite->setPosition(animObj->getPosition().x, animObj->getPosition().y);
+      }
+      else if (tileObj != nullptr)
+      {
+        sprite = &this->getSprite(tileObj->getTileId());
+        sprite->setPosition(tileObj->getPosition().x, tileObj->getPosition().y);
+      }
+      if (layer->getOpacity() < 1.0f)
+      {
+        sf::Color color = sprite->getColor();
+        color.a = 255 * layer->getOpacity();
+        sprite->setColor(color);
+      }
+      mRenderTarget.draw(*sprite);
     }
   }
 }

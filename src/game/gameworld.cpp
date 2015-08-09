@@ -17,14 +17,14 @@ GameWorld::GameWorld(ibrengine::Map *map):
     int objects = 0;
     if (layer != nullptr)
     {
-      for (const std::shared_ptr<ibrengine::MapObject> &mapObj: *layer)
+      for (std::shared_ptr<ibrengine::MapObject> &mapObj: *layer)
       {
-        if (mapObj.get()->getType() == "main_character")
+        if (mapObj->hasProperty("game_obj_type")
+            && mapObj->getProperty("game_obj_type") == "main_character")
           this->initMainCharacter(mapObj.get());
         objects++;
       }
     }
-    std::cout << "OBJECTS: " << objects << std::endl;
   }
 }
 
@@ -35,12 +35,44 @@ void GameWorld::draw(sf::RenderTarget &target)
 void GameWorld::handleInput(Input::Action act)
 {
   sf::Vector2i pos(mMainCharacter->getPosition());
-  pos.x += 10.0f;
+  switch (act)
+  {
+    case Input::Action::Right:
+    {
+      pos.x += 2.0f;
+      break;
+    }
+    case Input::Action::Left:
+    {
+      pos.x -= 2.0f;
+      break;
+    }
+    case Input::Action::Up:
+    {
+      pos.y -= 2.0f;
+      break;
+    }
+    case Input::Action::Down:
+    {
+      pos.y += 2.0f;
+      break;
+    }
+    case Input::Action::Fire:
+    {
+      if (mMainCharacter->getState() == MainCharacter::State::Staying)
+        mMainCharacter->setState(MainCharacter::State::Beating);
+      else
+        mMainCharacter->setState(MainCharacter::State::Staying);
+      break;
+    }
+  }
+
   mMainCharacter->setPosition(pos);
 }
 
 void GameWorld::update()
 {
+  mMainCharacter->update();
 }
 
 MainCharacter* GameWorld::getMainCharacter()
@@ -48,19 +80,11 @@ MainCharacter* GameWorld::getMainCharacter()
   return mMainCharacter.get();
 }
 
-void GameWorld::initMainCharacter(const ibrengine::MapObject *mapObj)
+void GameWorld::initMainCharacter(ibrengine::MapObject *mapObj)
 {
-  mMainCharacter.reset(new MainCharacter);
+  mMainCharacter.reset(new MainCharacter(mapObj));
   mMainCharacter->setPosition(mapObj->getPosition());
-  if (mapObj->hasProperty("anim_walk_r"))
-  {
-    // Set animation.
-    int animId = ibrengine::utils::stdStringToInt(mapObj->getProperty("anim_walk_r"));
-    mMainCharacter->setAnimation(MainCharacter::Animation::WalkRight,
-      mMap->getAnimation(animId));
-    mMainCharacter->setCurrentAnimation(MainCharacter::Animation::WalkRight);
-    // Set health.
-    int health = ibrengine::utils::stdStringToInt(mapObj->getProperty("health"));
-    mMainCharacter->setHealth(health);
-  }
+  // Set health.
+  int health = ibrengine::utils::stdStringToInt(mapObj->getProperty("health"));
+  mMainCharacter->setHealth(health);
 }

@@ -2,22 +2,38 @@
 
 #include "maincharacter.hpp"
 
-MainCharacter::MainCharacter()
+#include <animatableobject.hpp>
+
+MainCharacter::MainCharacter(ibrengine::MapObject *mapObj):
+  MortalObject(mapObj),
+  mAnimObj(dynamic_cast<ibrengine::AnimatableObject*>(mapObj))
 {
 }
 
-void MainCharacter::setAnimation(Animation animation, ibrengine::Animation* anim)
+MainCharacter::State MainCharacter::getState() const
 {
-  mAnimations[static_cast<int>(Animation::WalkRight)] = anim;
-  mCurrentAnimation = mAnimations[static_cast<int>(Animation::WalkRight)];
+  return mState;
 }
 
-const ibrengine::Animation* MainCharacter::getCurrentAnimation() const
+void MainCharacter::setState(State s)
 {
-  return mCurrentAnimation;
+  mState = s;
+  switch (mState)
+  {
+    case State::Staying:
+    {
+      mAnimObj->setCurrentAnimation("anim_walk_r");
+      break;
+    }
+    case State::Beating:
+    {
+      mAnimObj->setCurrentAnimation("anim_beat");
+      break;
+    }
+  }
 }
 
-void MainCharacter::setCurrentAnimation(Animation anim)
+void MainCharacter::update()
 {
-  mCurrentAnimation = mAnimations[static_cast<int>(anim)];
+  mAnimObj->update();
 }

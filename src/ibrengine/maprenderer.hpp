@@ -17,6 +17,7 @@ namespace sf
 namespace ibrengine
 {
 
+class ObjectLayer;
 class TileLayer;
 class Map;
 
@@ -31,6 +32,7 @@ public:
 private:
   void loadSprites();
   void renderTileLayer(const TileLayer *layer);
+  void renderObjectLayer(const ObjectLayer *layer);
   inline sf::Sprite& getSprite(int index);
 
   std::vector<std::shared_ptr<sf::Texture>> mTextures;

@@ -22,11 +22,16 @@ class RenderTarget;
 class GameObject
 {
 public:
+  explicit GameObject(ibrengine::MapObject *mapObj);
+
   const sf::Vector2i& getPosition() const;
   void setPosition(const sf::Vector2i &pos);
 
+protected:
+  ibrengine::MapObject* getMapObj();
+
 private:
-  sf::Vector2i mPos;
+  ibrengine::MapObject *mMapObj = nullptr;
 };
 
 #endif // GAMEOBJECT_HPP

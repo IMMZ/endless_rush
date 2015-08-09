@@ -2,6 +2,11 @@
 
 #include "mortalobject.hpp"
 
+MortalObject::MortalObject(ibrengine::MapObject *mapObj):
+  GameObject(mapObj)
+{
+}
+
 int MortalObject::getHealth()
 {
   return mHealth;

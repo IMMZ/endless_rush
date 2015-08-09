@@ -25,7 +25,6 @@ void InGameState::draw(sf::RenderTarget &target)
   if (mRenderer.get() == nullptr)
     mRenderer.reset(new ibrengine::MapRenderer(target));
   mRenderer->renderMap(mMap);
-  mGameWorld->draw(target);
 }
 
 void InGameState::handleInput(Input::Action act)

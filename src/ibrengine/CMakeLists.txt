@@ -6,7 +6,9 @@ find_package(SFML 2.1 COMPONENTS system window graphics)
 
 set(SRC
   animation.cpp
+  animatableobject.cpp
   complexshape.cpp
+  drawableobject.cpp
   exception.cpp
   layer.cpp
   map.cpp
@@ -16,6 +18,7 @@ set(SRC
   objectlayer.cpp
   simpleshape.cpp
   tilelayer.cpp
+  tileobject.cpp
   tileset.cpp
   tmxloader.cpp
   utils.cpp
