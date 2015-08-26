@@ -29,7 +29,7 @@ void MenuState::handleInput(Input::Action act)
     this->requestStateChange(GameState::LoadingLevel);
 }
 
-void MenuState::update()
+void MenuState::update(const sf::Time &time)
 {
   // TODO: implement
 }

@@ -45,7 +45,7 @@ void LevelLoadingState::handleInput(Input::Action act)
     this->requestStateChange(GameState::InGame);
 }
 
-void LevelLoadingState::update()
+void LevelLoadingState::update(const sf::Time &time)
 {
   if (mLevelLoaded)
   {

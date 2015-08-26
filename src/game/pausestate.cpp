@@ -29,7 +29,7 @@ void PauseState::handleInput(Input::Action act)
     this->requestStateChange(GameState::InGame);
 }
 
-void PauseState::update()
+void PauseState::update(const sf::Time &time)
 {
   // TODO: implement
 }

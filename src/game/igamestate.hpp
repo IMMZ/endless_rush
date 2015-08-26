@@ -10,6 +10,7 @@ namespace sf
 {
 
 class RenderTarget;
+class Time;
 
 }
 
@@ -23,7 +24,7 @@ public:
 
   virtual void draw(sf::RenderTarget &target) = 0; // TODO: remove rendertarget parameter - use getRenderTarget() instead
   virtual void handleInput(Input::Action act) = 0;
-  virtual void update() = 0;
+  virtual void update(const sf::Time &time) = 0;
 
   bool isStateChangeRequested() const { return mStateChangeRequested; }
   GameState requestedState() const { return mState; }

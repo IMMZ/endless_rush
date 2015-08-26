@@ -14,7 +14,7 @@ public:
   // IGameState
   void draw(sf::RenderTarget &target) override;
   void handleInput(Input::Action act) override;
-  void update() override;
+  void update(const sf::Time &time) override;
 };
 
 } // namespace internal

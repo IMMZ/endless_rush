@@ -32,7 +32,7 @@ void InGameState::handleInput(Input::Action act)
   mGameWorld->handleInput(act);
 }
 
-void InGameState::update()
+void InGameState::update(const sf::Time &time)
 {
   mGameWorld->update();
 }

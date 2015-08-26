@@ -17,6 +17,7 @@
 #include <SFML/Window/Event.hpp>
 
 const std::string Game::NAME = "Endless shit";
+const sf::Time Game::UPDATES_PER_SECOND = sf::seconds(1.0f / 60.0f);
 
 Game& Game::instance()
 {
@@ -48,6 +49,8 @@ void Game::start()
   mLevelLoadingState.get()->setRenderTarget(&window);
   mPauseState.get()->setRenderTarget(&window);
 
+  sf::Clock timer;
+  sf::Time elapsedTime = sf::Time::Zero;
   while (window.isOpen())
   {
     sf::Event event;
@@ -67,10 +70,15 @@ void Game::start()
         }
       }
     }
+    elapsedTime += timer.restart();
+    while (elapsedTime > UPDATES_PER_SECOND)
+    {
+      elapsedTime -= UPDATES_PER_SECOND;
+      mCurrentState->update(UPDATES_PER_SECOND);
+      if (mCurrentState->isStateChangeRequested())
+        this->setState(mCurrentState->requestedState());
+    }
     window.clear();
-    mCurrentState->update();
-    if (mCurrentState->isStateChangeRequested())
-      this->setState(mCurrentState->requestedState());
     mCurrentState->draw(window);
     window.display();
   }

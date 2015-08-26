@@ -40,7 +40,7 @@ void IntroState::handleInput(Input::Action act)
   unused(act);
 }
 
-void IntroState::update()
+void IntroState::update(const sf::Time &time)
 {
   switch (mTextState)
   {

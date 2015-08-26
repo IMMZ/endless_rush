@@ -5,6 +5,8 @@
 
 #include "igamestate.hpp"
 
+#include <SFML/System/Time.hpp>
+
 #include <memory>
 #include <string>
 
@@ -29,6 +31,7 @@ public:
 
 private:
   static const std::string NAME;
+  static const sf::Time UPDATES_PER_SECOND;
 
   Game() {};
   Game(const Game &other);
