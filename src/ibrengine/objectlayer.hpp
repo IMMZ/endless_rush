@@ -15,10 +15,10 @@ namespace ibrengine
 class ObjectLayer: public Layer
 {
 public:
-  typedef std::vector<std::shared_ptr<MapObject>>::iterator ObjectIterator;
-  typedef std::vector<std::shared_ptr<MapObject>>::const_iterator ObjectConstIterator;
-  typedef std::vector<std::shared_ptr<MapObject>>::reverse_iterator ObjectReverseIterator;
-  typedef std::vector<std::shared_ptr<MapObject>>::const_reverse_iterator ObjectConstReverseIterator;
+  using ObjectIterator = std::vector<std::shared_ptr<MapObject>>::iterator;
+  using ObjectConstIterator = std::vector<std::shared_ptr<MapObject>>::const_iterator;
+  using ObjectReverseIterator = std::vector<std::shared_ptr<MapObject>>::reverse_iterator;
+  using ObjectConstReverseIterator = std::vector<std::shared_ptr<MapObject>>::const_reverse_iterator;
 
   ObjectLayer(const std::string &name, int w, int h);
 

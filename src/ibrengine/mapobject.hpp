@@ -14,10 +14,10 @@ namespace ibrengine
 class MapObject
 {
 public:
-  typedef std::map<sf::String, sf::String>::iterator PropertyIterator;
-  typedef std::map<sf::String, sf::String>::const_iterator PropertyConstIterator;
-  typedef std::map<sf::String, sf::String>::reverse_iterator PropertyReverseIterator;
-  typedef std::map<sf::String, sf::String>::const_reverse_iterator PropertyConstReverseIterator;
+  using PropertyIterator = std::map<sf::String, sf::String>::iterator;
+  using PropertyConstIterator = std::map<sf::String, sf::String>::const_iterator;
+  using PropertyReverseIterator = std::map<sf::String, sf::String>::reverse_iterator;
+  using PropertyConstReverseIterator = std::map<sf::String, sf::String>::const_reverse_iterator;
 
   MapObject(); // TODO: extra?
   explicit MapObject(const sf::String &name);

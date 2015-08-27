@@ -20,10 +20,10 @@ namespace ibrengine
 class Map
 {
 public:
-  typedef std::vector<std::shared_ptr<Tileset>>::iterator TilesetIterator;
-  typedef std::vector<std::shared_ptr<Tileset>>::const_iterator TilesetConstIterator;
-  typedef std::vector<std::shared_ptr<Layer>>::iterator LayerIterator;
-  typedef std::vector<std::shared_ptr<Layer>>::const_iterator LayerConstIterator;
+  using TilesetIterator = std::vector<std::shared_ptr<Tileset>>::iterator;
+  using TilesetConstIterator = std::vector<std::shared_ptr<Tileset>>::const_iterator;
+  using LayerIterator = std::vector<std::shared_ptr<Layer>>::iterator;
+  using LayerConstIterator = std::vector<std::shared_ptr<Layer>>::const_iterator;
 
   enum class Orientation
   {

@@ -13,10 +13,10 @@ namespace ibrengine
 class ComplexShape: public MapObject
 {
 public:
-  typedef std::vector<sf::Vector2i>::iterator PointIterator;
-  typedef std::vector<sf::Vector2i>::const_iterator PointConstIterator;
-  typedef std::vector<sf::Vector2i>::reverse_iterator PointReverseIterator;
-  typedef std::vector<sf::Vector2i>::const_reverse_iterator PointConstReverseIterator;
+  using PointIterator = std::vector<sf::Vector2i>::iterator;
+  using PointConstIterator = std::vector<sf::Vector2i>::const_iterator;
+  using PointReverseIterator = std::vector<sf::Vector2i>::reverse_iterator;
+  using PointConstReverseIterator = std::vector<sf::Vector2i>::const_reverse_iterator;
 
   enum class Type { Polyline, Polygon };
 
