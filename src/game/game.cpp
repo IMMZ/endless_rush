@@ -11,8 +11,6 @@
 #include "pausestate.hpp"
 #include "settings.hpp"
 
-#include <map.hpp>
-
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
@@ -122,15 +120,14 @@ void Game::setState(GameState state)
           dynamic_cast<internal::LevelLoadingState*>(mLevelLoadingState.get());
         levelLoadingState->setMapFile("test.tmx");
         mCurrentState = mLevelLoadingState.get();
-        levelLoadingState->loadMap();
-        mCurrentMap = levelLoadingState->loadedMap(); // rename 'getLoaded'
+        mCurrentMap = std::move(levelLoadingState->loadMap());
         break;
       }
       case GameState::InGame:
       {
         internal::InGameState *inGameState =
           dynamic_cast<internal::InGameState*>(mInGameState.get());
-        inGameState->setMap(mCurrentMap);
+        inGameState->setMap(mCurrentMap.get());
         mCurrentState = mInGameState.get();
         break;
       }

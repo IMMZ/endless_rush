@@ -4,6 +4,7 @@
 #define TMXLOADER_HPP
 
 #include "animation.hpp"
+#include "map.hpp"
 #include "mapobject.hpp"
 
 #include <rapidxml.hpp>
@@ -16,7 +17,6 @@ namespace ibrengine
 
 class ComplexShape;
 class Layer;
-class Map;
 class ObjectLayer;
 class TileLayer;
 class Tileset;
@@ -24,7 +24,7 @@ class Tileset;
 class TmxLoader
 {
 public:
-  Map* loadMap(const std::string &tmxPath);
+  std::unique_ptr<Map> loadMap(const std::string &tmxPath);
 
 private:
   Map* parseMap(const rapidxml::xml_node<char> *mapNode);

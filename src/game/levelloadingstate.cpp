@@ -62,15 +62,12 @@ void LevelLoadingState::setMapFile(const sf::String &mapFilePath)
   mMapFile = mapFilePath;
 }
 
-void LevelLoadingState::loadMap()
+std::unique_ptr<ibrengine::Map> LevelLoadingState::loadMap()
 {
-  mLoadedMap = mTmxLoader.loadMap(mMapFile.toAnsiString());
+  mLevelLoaded = false;
+  std::unique_ptr<ibrengine::Map> map(std::move(mTmxLoader.loadMap(mMapFile.toAnsiString())));
   mLevelLoaded = true;
-}
-
-ibrengine::Map* LevelLoadingState::loadedMap() // TODO: use smart ptr.
-{
-  return mLoadedMap;
+  return map;
 }
 
 } // namespace internal

@@ -5,17 +5,12 @@
 
 #include "igamestate.hpp"
 
+#include <map.hpp>
+
 #include <SFML/System/Time.hpp>
 
 #include <memory>
 #include <string>
-
-namespace ibrengine
-{
-
-class Map;
-
-}
 
 class Game
 {
@@ -49,7 +44,7 @@ private:
     mPauseState,
     mTitlesState;
   GameState mState = GameState::Menu;
-  ibrengine::Map *mCurrentMap = nullptr;
+  std::unique_ptr<ibrengine::Map> mCurrentMap = { nullptr };
 };
 
 #endif // GAME_HPP

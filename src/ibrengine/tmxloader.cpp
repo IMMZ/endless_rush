@@ -4,7 +4,6 @@
 
 #include "animatableobject.hpp"
 #include "complexshape.hpp"
-#include "map.hpp"
 #include "maploadexception.hpp"
 #include "objectlayer.hpp"
 #include "simpleshape.hpp"
@@ -22,7 +21,7 @@
 namespace ibrengine
 {
 
-Map* TmxLoader::loadMap(const std::string &tmxPath)
+std::unique_ptr<Map> TmxLoader::loadMap(const std::string &tmxPath)
 {
   std::ifstream tmxFile(tmxPath);
   if (tmxFile.is_open())
@@ -44,7 +43,8 @@ Map* TmxLoader::loadMap(const std::string &tmxPath)
   {
     throw new XmlParseException(exc.what(), exc.where<char>());
   }
-  return parseMap(mXmlDoc->first_node());
+  std::unique_ptr<Map> m(parseMap(mXmlDoc->first_node()));
+  return m;
 }
 
 Map* TmxLoader::parseMap(const rapidxml::xml_node<char> *mapNode)
