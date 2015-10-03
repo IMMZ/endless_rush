@@ -22,8 +22,8 @@ set(SRC
 set(CMAKE_BINARY_OUTPUT_DIRECTORY "../../bin")
 include_directories(
   ${SFML_INCLUDE_DIR}/SFML
-  "/home/ibram/Work/games/src/ibrengine"
-  "/home/ibram/Work/games/src/rapidxml-1.13")
+  "../ibrengine"
+  "../rapidxml-1.13")
 link_directories("/home/ibram/Work/games/lib")
 add_executable(${PROJECT_NAME} ${SRC})
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES} ibrengine)
