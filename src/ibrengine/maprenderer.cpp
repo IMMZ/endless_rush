@@ -50,6 +50,25 @@ void MapRenderer::renderMap(const Map *map)
   }
 }
 
+bool MapRenderer::isObjectInView(const DrawableObject &mapObj) const
+{
+  const int screenW = mRenderTarget.getSize().x;
+  const int screenH = mRenderTarget.getSize().y;
+  const int screenX = mRenderTarget.getView().getCenter().x - screenW / 2;
+  const int screenY = mRenderTarget.getView().getCenter().y - screenH / 2;
+  const int objW = mapObj.getSize().x;
+  const int objH = mapObj.getSize().y;
+  const int objOffsetX = mapObj.getPosition().x - screenX + objW;
+  const int objOffsetY = mapObj.getPosition().y - screenY + objH;
+
+  if (objOffsetX < -10 || objOffsetX > (screenX + screenW + objW + 10))
+    return false;
+  if (objOffsetY < -10 || objOffsetY > (screenY + screenH + objH + 10))
+    return false;
+
+  return true;
+}
+
 void MapRenderer::loadSprites()
 {
   // Reinitializing storage for sprites.
@@ -132,8 +151,15 @@ void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
 {
   for (const std::shared_ptr<MapObject> &mapObj: *layer)
   {
-    if (mapObj->isVisible() && dynamic_cast<DrawableObject*>(mapObj.get()) != nullptr)
+    if (mapObj->isVisible())
     {
+      const DrawableObject *drawableObj = dynamic_cast<const DrawableObject*>(mapObj.get());
+      if (drawableObj == nullptr)
+        break;
+
+      if (!this->isObjectInView(*drawableObj))
+        break;
+
       AnimatableObject *animObj = dynamic_cast<AnimatableObject*>(mapObj.get());
       TileObject *tileObj = dynamic_cast<TileObject*>(mapObj.get());
       sf::Sprite *sprite = nullptr;
