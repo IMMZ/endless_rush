@@ -99,10 +99,10 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
    * OOOOOOOOOO =>...
    */
 
-  int windowW = mRenderTarget.getSize().x;
-  int windowH = mRenderTarget.getSize().y;
-  int currentX = mRenderTarget.getView().getCenter().x - windowW / 2;
-  int currentY = mRenderTarget.getView().getCenter().y - windowH / 2;
+  const int windowW = mRenderTarget.getSize().x;
+  const int windowH = mRenderTarget.getSize().y;
+  const int currentX = mRenderTarget.getView().getCenter().x - windowW / 2;
+  const int currentY = mRenderTarget.getView().getCenter().y - windowH / 2;
   const int xTileFrom = currentX / mMap->getTileW();
   const int yTileFrom = currentY / mMap->getTileH();
   const int xTileTo = xTileFrom + windowW / mMap->getTileW();
