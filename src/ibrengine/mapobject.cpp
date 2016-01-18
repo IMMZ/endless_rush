@@ -2,20 +2,67 @@
 
 #include "mapobject.hpp"
 
+#include "animatableobjectt.hpp"
+#include "drawableobjectt.hpp"
+#include "objectlayer.hpp"
+#include "testik.hpp" // physical obj
+
 namespace ibrengine
 {
-
-MapObject::MapObject()
-{
-}
 
 MapObject::MapObject(const sf::String& name):
   mName(name)
 {
 }
 
-MapObject::~MapObject()
+void MapObject::setObject(Object *obj)
 {
+  switch (obj->getType())
+  {
+    case Object::Type::Drawable:
+    {
+      mDrawableObj.reset(dynamic_cast<DrawableObjectt*>(obj));
+      break;
+    }
+    case Object::Type::Animatable:
+    {
+      mAnimatableObj.reset(dynamic_cast<AnimatableObjectt*>(obj));
+      break;
+    }
+  }
+}
+
+void MapObject::objectChanged(const Object &obj)
+{
+  switch (obj.getType())
+  {
+    case Object::Type::Drawable:
+    {
+      this->drawableObjectChanged(*mDrawableObj);
+      break;
+    }
+    case Object::Type::Physical:
+    {
+      this->physicalObjectChanged(*mPhysicalObj);
+      break;
+    }
+    case Object::Type::Animatable:
+    {
+      this->animatableObjectChanged(*mAnimatableObj);
+      break;
+    }
+    default: break; // TODO: warn about Unknown obj type.
+  }
+}
+
+void MapObject::addToLayer(ObjectLayer &layer)
+{
+  if (mDrawableObj != nullptr)
+    layer.addDrawableObject(mDrawableObj.get());
+  if (mPhysicalObj != nullptr)
+    layer.addPhysicalObject(mPhysicalObj.get());
+  if (mAnimatableObj != nullptr)
+    layer.addAnimatableObject(mAnimatableObj.get());
 }
 
 const sf::String& MapObject::getName() const
@@ -114,8 +161,38 @@ MapObject::PropertyConstReverseIterator MapObject::propertiesREnd() const
   return mProperties.rend();
 }
 
-void MapObject::update()
+void MapObject::update(const sf::Time &time)
 {
+  if (mDrawableObj != nullptr)
+    mDrawableObj->update(time);
+  if (mPhysicalObj != nullptr)
+    mPhysicalObj->update(time);
+  if (mAnimatableObj != nullptr)
+    mAnimatableObj->update(time);
+}
+
+void MapObject::drawableObjectChanged(const DrawableObjectt &obj)
+{// Do nothing?
+}
+
+void MapObject::physicalObjectChanged(const PhysicalObjectt &obj)
+{
+  if (mDrawableObj != nullptr)
+  {
+    // set rotation and position for drawObject
+  }
+  // set position for mMapObj
+}
+
+void MapObject::animatableObjectChanged(const AnimatableObjectt &obj)
+{
+  if (mDrawableObj != nullptr)
+  {
+    mDrawableObj->setTileId(obj.getCurrentTileId());
+  }
+  if (mPhysicalObj != nullptr)
+  {// TODO: set new id for physical property
+  }
 }
 
 } // namespace ibrengine

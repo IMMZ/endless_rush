@@ -4,6 +4,7 @@
 #define MAINCHARACTER_HPP
 
 #include "mortalobject.hpp"
+#include "object.hpp"
 
 #include <animation.hpp>
 
@@ -12,7 +13,7 @@
 namespace ibrengine
 {
 
-class AnimatableObject;
+class AnimatableObjectt;
 
 }
 
@@ -28,14 +29,14 @@ public:
     Shooting = Beating
   };
 
-  MainCharacter(ibrengine::MapObject *mapObj);
+  MainCharacter(ibrengine::Object *mapObj);
 
   State getState() const;
   void setState(State s);
   void update();
 
 private:
-  ibrengine::AnimatableObject *mAnimObj = nullptr;
+  ibrengine::AnimatableObjectt *mAnimObj = nullptr;
   State mState = State::Staying;
 };
 

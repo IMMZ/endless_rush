@@ -44,6 +44,7 @@ public:
   void setOrientation(Orientation orient);
   const std::string& getVersion() const;
   void setVersion(const std::string &version);
+  void update(const sf::Time &time);
 
   // Tileset funcs.
   void addTileset(const std::shared_ptr<Tileset> &tSet);

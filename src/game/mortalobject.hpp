@@ -8,7 +8,7 @@
 class MortalObject: public GameObject
 {
 public:
-  explicit MortalObject(ibrengine::MapObject *mapObj);
+  explicit MortalObject(ibrengine::Object *mapObj);
 
   int getHealth();
   void setHealth(int health);

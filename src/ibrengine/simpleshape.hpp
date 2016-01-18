@@ -3,12 +3,19 @@
 #ifndef SIMPLESHAPE_HPP
 #define SIMPLESHAPE_HPP
 
-#include "mapobject.hpp"
+#include <SFML/System/Vector2.hpp>
+
+namespace sf
+{
+
+class String;
+
+}
 
 namespace ibrengine
 {
 
-class SimpleShape: public MapObject
+class SimpleShape
 {
 public:
   enum class Type { Circle, Square };

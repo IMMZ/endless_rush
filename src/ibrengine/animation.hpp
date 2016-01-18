@@ -30,23 +30,19 @@ public:
   void addFrame(int tileId, int duration);
   int getFramesCount() const;
   int getDurationForFrame(int frame);
-  void setDurationForFrame(int frame, int duration);
-  float getSpeed() const;
-  void setSpeed(float speed);
+  bool isCycled() const;
   void play();
   void stop();
   void reset();
-  void update();
+  void update(const sf::Time &time);
 
 private:
-  void updateDurations(); // used after changing speed
-
   std::vector<std::pair<int /* tileId */, int /* duration */ >> mFrames;
-  sf::Clock mTimer;
-  float mSpeed = 1.0f, mOldSpeed = 1.0f;
   int mCurrentFrame = 0;
+  int mElapsedTime = 0;
   int mId = -1;
   bool mPlaying = true; // TODO: make false
+  bool mIsCycled = true;
 };
 
 } // namespace ibrengine

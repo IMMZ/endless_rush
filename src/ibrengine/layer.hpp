@@ -10,7 +10,7 @@ namespace ibrengine
 
 class Layer
 {
-public:
+public: // TODO: add enum class Type { Tile, Object, Image }
   Layer(const std::string &name, int w, int h);
   virtual ~Layer();
 

@@ -6,7 +6,6 @@ namespace ibrengine
 {
 
 SimpleShape::SimpleShape(const sf::String& name, Type type):
-  MapObject(name),
   mType(type)
 {
 }

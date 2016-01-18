@@ -1,24 +1,33 @@
-// license text
+// TODO: license text
 
-#ifndef ANIMATABLEOBJECT_HPP
-#define ANIMATABLEOBJECT_HPP
+#ifndef ANIMATABLEOBJECTT_HPP_
+#define ANIMATABLEOBJECTT_HPP_
 
-#include "tileobject.hpp"
+#include "object.hpp"
 
 #include <map>
+
+namespace sf
+{
+
+class String;
+class Time;
+
+}
 
 namespace ibrengine
 {
 
 class Animation;
+class MapObject;
 
-class AnimatableObject: public TileObject
+class AnimatableObjectt: public Object
 {
 public:
-  AnimatableObject(const sf::String &name, int tileId);
+  AnimatableObjectt(const sf::String &name, MapObject &director, int tileId);
 
-  // MapObject
-  void update() override;
+  // Object
+  void update(const sf::Time &time) override;
 
   void addAnimation(const sf::String &animName, Animation *anim);
   void setCurrentAnimation(const sf::String &animName);
@@ -34,4 +43,4 @@ private:
 
 } // namespace ibrengine
 
-#endif // ANIMATABLEOBJECT_HPP_
+#endif // ANIMATABLEOBJECTT_HPP_

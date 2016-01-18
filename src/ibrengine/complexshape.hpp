@@ -10,7 +10,7 @@
 namespace ibrengine
 {
 
-class ComplexShape: public MapObject
+class ComplexShape
 {
 public:
   using PointIterator = std::vector<sf::Vector2i>::iterator;

@@ -35,6 +35,7 @@ void InGameState::handleInput(Input::Action act)
 void InGameState::update(const sf::Time &time)
 {
   mGameWorld->update();
+  mMap->update(time);
 }
 
 void InGameState::setMap(ibrengine::Map *map)

@@ -2,11 +2,10 @@
 
 #include "maprenderer.hpp"
 
-#include "animatableobject.hpp"
 #include "map.hpp"
 #include "objectlayer.hpp"
+#include "testik.hpp"
 #include "tilelayer.hpp"
-#include "tileobject.hpp"
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
@@ -50,7 +49,7 @@ void MapRenderer::renderMap(const Map *map)
   }
 }
 
-bool MapRenderer::isObjectInView(const DrawableObject &mapObj) const
+bool MapRenderer::isObjectInView(const DrawableObjectt &mapObj) const
 {
   const int screenW = mRenderTarget.getSize().x;
   const int screenH = mRenderTarget.getSize().y;
@@ -134,6 +133,8 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
       if (x >= 0 && y >= 0 && layer->getTileId(x, y) > 0)
       {
         sf::Sprite &sprite = this->getSprite(layer->getTileId(x, y));
+        //TODO: extract this
+        //TODO: should we set the rotation here?
         if (layer->getOpacity() < 1.0f)
         {
           sf::Color color = sprite.getColor();
@@ -149,43 +150,25 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
 
 void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
 {
-  for (const std::shared_ptr<MapObject> &mapObj: *layer)
+  std::cout << "draws: " << layer->getObjectsCount(Object::Type::Drawable) << std::endl;
+  ObjectLayer::DrawableObjectCIterator i = layer->beginDrawableObjs();
+  while (i != layer->endDrawableObjs())
   {
-    if (mapObj->isVisible())
+    if (true/*mapObj->isVisible()*/)
     {
-      const DrawableObject *drawableObj = dynamic_cast<const DrawableObject*>(mapObj.get());
-      if (drawableObj == nullptr)
-        break;
+      std::cout << "OBJECTOSIK" << std::endl;
+      sf::Sprite *sprite = &this->getSprite((*i)->getTileId());
+      sprite->setPosition((*i)->getPosition().x, (*i)->getPosition().y - sprite->getLocalBounds().height);
 
-      if (!this->isObjectInView(*drawableObj))
-        break;
-
-      AnimatableObject *animObj = dynamic_cast<AnimatableObject*>(mapObj.get());
-      TileObject *tileObj = dynamic_cast<TileObject*>(mapObj.get());
-      sf::Sprite *sprite = nullptr;
-
-      /*
-       * When setting the position we should subtract the object width from the y
-       * position as Tiled saves bottom point as y when SFML draws the top one.
-       */
-      if (animObj != nullptr)
-      {
-        sprite = &this->getSprite(animObj->getCurrentTileId());
-        sprite->setPosition(animObj->getPosition().x, animObj->getPosition().y - sprite->getLocalBounds().height);
-      }
-      else if (tileObj != nullptr)
-      {
-        sprite = &this->getSprite(tileObj->getTileId());
-        sprite->setPosition(tileObj->getPosition().x, tileObj->getPosition().y - sprite->getLocalBounds().height);
-      }
       if (layer->getOpacity() < 1.0f)
-      {
+      {// TOOD; rotation
         sf::Color color = sprite->getColor();
         color.a = 255 * layer->getOpacity();
         sprite->setColor(color);
       }
       mRenderTarget.draw(*sprite);
     }
+    ++i;
   }
 }
 

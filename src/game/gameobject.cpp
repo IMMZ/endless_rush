@@ -2,9 +2,9 @@
 
 #include "gameobject.hpp"
 
-#include <mapobject.hpp>
+#include <object.hpp>
 
-GameObject::GameObject(ibrengine::MapObject *mapObj):
+GameObject::GameObject(ibrengine::Object *mapObj):
   mMapObj(mapObj)
 {
 }
@@ -19,7 +19,7 @@ void GameObject::setPosition(const sf::Vector2i& pos)
   mMapObj->setPosition(pos);
 }
 
-ibrengine::MapObject* GameObject::getMapObj()
+ibrengine::Object* GameObject::getMapObj()
 {
   return mMapObj;
 }

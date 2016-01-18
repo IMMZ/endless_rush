@@ -17,13 +17,13 @@ GameWorld::GameWorld(ibrengine::Map *map):
     int objects = 0;
     if (layer != nullptr)
     {
-      for (std::shared_ptr<ibrengine::MapObject> &mapObj: *layer)
+      /*for (std::shared_ptr<ibrengine::MapObject> &mapObj: *layer)
       {
         if (mapObj->hasProperty("game_obj_type")
             && mapObj->getProperty("game_obj_type") == "main_character")
           this->initMainCharacter(mapObj.get());
         objects++;
-      }
+      }*/
     }
   }
 }
@@ -34,6 +34,8 @@ void GameWorld::draw(sf::RenderTarget &target)
 
 void GameWorld::handleInput(Input::Action act)
 {
+  if (mMainCharacter == nullptr)
+    return;
   sf::Vector2i pos(mMainCharacter->getPosition());
   switch (act)
   {
@@ -72,7 +74,6 @@ void GameWorld::handleInput(Input::Action act)
 
 void GameWorld::update()
 {
-  mMainCharacter->update();
 }
 
 MainCharacter* GameWorld::getMainCharacter()
@@ -82,7 +83,7 @@ MainCharacter* GameWorld::getMainCharacter()
 
 void GameWorld::initMainCharacter(ibrengine::MapObject *mapObj)
 {
-  mMainCharacter.reset(new MainCharacter(mapObj));
+  //mMainCharacter.reset(new MainCharacter(mapObj));
   mMainCharacter->setPosition(mapObj->getPosition());
   // Set health.
   int health = ibrengine::utils::stdStringToInt(mapObj->getProperty("health"));

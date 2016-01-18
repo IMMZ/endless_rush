@@ -20,7 +20,7 @@ namespace ibrengine
 class ObjectLayer;
 class TileLayer;
 class Map;
-class DrawableObject;
+class DrawableObjectt;
 
 class MapRenderer
 {
@@ -31,7 +31,7 @@ public:
   void renderMap(const Map *map);
 
 private:
-  bool isObjectInView(const DrawableObject &obj) const;
+  bool isObjectInView(const DrawableObjectt &obj) const;
   void loadSprites();
   void renderTileLayer(const TileLayer *layer);
   void renderObjectLayer(const ObjectLayer *layer);

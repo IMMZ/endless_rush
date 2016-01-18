@@ -8,7 +8,7 @@
 namespace ibrengine
 {
 
-class MapObject;
+class Object;
 
 }
 
@@ -22,16 +22,16 @@ class RenderTarget;
 class GameObject
 {
 public:
-  explicit GameObject(ibrengine::MapObject *mapObj);
+  explicit GameObject(ibrengine::Object *mapObj);
 
   const sf::Vector2i& getPosition() const;
   void setPosition(const sf::Vector2i &pos);
 
 protected:
-  ibrengine::MapObject* getMapObj();
+  ibrengine::Object* getMapObj();
 
 private:
-  ibrengine::MapObject *mMapObj = nullptr;
+  ibrengine::Object *mMapObj = nullptr;
 };
 
 #endif // GAMEOBJECT_HPP

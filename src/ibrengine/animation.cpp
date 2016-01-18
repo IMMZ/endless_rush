@@ -38,32 +38,14 @@ int Animation::getDurationForFrame(int frame)
   return mFrames[frame].second;
 }
 
-void Animation::setDurationForFrame(int frame, int duration)
+bool Animation::isCycled() const
 {
-  mFrames[frame].second = duration;
-}
-
-float Animation::getSpeed() const
-{
-  return mSpeed;
-}
-
-void Animation::setSpeed(float speed)
-{
-  mOldSpeed = mSpeed;
-  if (speed > 10.0f)
-    mSpeed = 10.0f;
-  else if (speed < 1.0f)
-    mSpeed = 1.0f;
-  else
-    mSpeed = speed;
-  this->updateDurations();
+  return mIsCycled;
 }
 
 void Animation::play()
 {
   mPlaying = true;
-  mTimer.restart();
 }
 
 void Animation::stop()
@@ -73,23 +55,31 @@ void Animation::stop()
 
 void Animation::reset()
 {
+  mElapsedTime = 0;
   mCurrentFrame = 0;
 }
 
-void Animation::update()
+void Animation::update(const sf::Time &time)
 {
-  if (mPlaying && mTimer.getElapsedTime().asMilliseconds() > mFrames[mCurrentFrame].second)
+  if (mPlaying)
   {
-    (mCurrentFrame == mFrames.size() - 1) ? mCurrentFrame = 0: mCurrentFrame++;
-    mTimer.restart();
+    mElapsedTime += time.asMilliseconds();
+    int currentFrameDuration = this->getDurationForFrame(mCurrentFrame);
+    while (mElapsedTime > currentFrameDuration)
+    {
+      mElapsedTime -= currentFrameDuration;
+      // Check for last frame.
+      if ((mCurrentFrame + 1) == mFrames.size())
+      {
+        if (mIsCycled)
+          mCurrentFrame = 0;
+      }
+      else
+      {
+        mCurrentFrame++;
+      }
+    }
   }
-}
-
-void Animation::updateDurations()
-{
-  float coefficient = mSpeed / mOldSpeed;
-  for(std::pair<int, int> &frame: mFrames)
-    frame.second *= coefficient;
 }
 
 } // namespace ibrengine

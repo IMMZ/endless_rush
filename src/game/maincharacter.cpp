@@ -2,11 +2,13 @@
 
 #include "maincharacter.hpp"
 
-#include <animatableobject.hpp>
+#include <animatableobjectt.hpp>
 
-MainCharacter::MainCharacter(ibrengine::MapObject *mapObj):
+#include <SFML/System/String.hpp>
+
+MainCharacter::MainCharacter(ibrengine::Object *mapObj):
   MortalObject(mapObj),
-  mAnimObj(dynamic_cast<ibrengine::AnimatableObject*>(mapObj))
+  mAnimObj(dynamic_cast<ibrengine::AnimatableObjectt*>(mapObj))
 {
 }
 
@@ -35,5 +37,4 @@ void MainCharacter::setState(State s)
 
 void MainCharacter::update()
 {
-  mAnimObj->update();
 }

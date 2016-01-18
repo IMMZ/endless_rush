@@ -6,7 +6,6 @@ namespace ibrengine
 {
 
 ComplexShape::ComplexShape(const sf::String& name, Type type):
-  MapObject(name),
   mType(type)
 {
 }

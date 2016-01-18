@@ -2,7 +2,7 @@
 
 #include "mortalobject.hpp"
 
-MortalObject::MortalObject(ibrengine::MapObject *mapObj):
+MortalObject::MortalObject(ibrengine::Object *mapObj):
   GameObject(mapObj)
 {
 }

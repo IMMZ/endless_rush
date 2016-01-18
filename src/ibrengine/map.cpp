@@ -1,6 +1,7 @@
 // todo: license
 
 #include "map.hpp"
+#include "objectlayer.hpp"
 
 namespace ibrengine
 {
@@ -59,6 +60,16 @@ const std::string& Map::getVersion() const
 void Map::setVersion(const std::string &version)
 {
   mVersion = version;
+}
+
+void Map::update(const sf::Time &time)
+{
+  for (std::shared_ptr<Layer> &layer: mLayers)
+  {
+    ObjectLayer *objLayer = dynamic_cast<ObjectLayer*>(layer.get());
+    if (objLayer != nullptr)
+      objLayer->update(time);
+  }
 }
 
 void Map::addTileset(const std::shared_ptr<Tileset> &tSet)

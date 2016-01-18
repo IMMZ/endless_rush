@@ -3,14 +3,23 @@
 #ifndef MAPOBJECT_HPP
 #define MAPOBJECT_HPP
 
+#include "object.hpp"
+
 #include <SFML/System/String.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <map>
+#include <memory>
 
 namespace ibrengine
 {
 
+class ObjectLayer;
+class DrawableObjectt;
+class PhysicalObjectt;
+class AnimatableObjectt;
+
+// TODO: rename to 'MapUnit'
 class MapObject
 {
 public:
@@ -19,9 +28,19 @@ public:
   using PropertyReverseIterator = std::map<sf::String, sf::String>::reverse_iterator;
   using PropertyConstReverseIterator = std::map<sf::String, sf::String>::const_reverse_iterator;
 
-  MapObject(); // TODO: extra?
   explicit MapObject(const sf::String &name);
-  virtual ~MapObject();
+
+  // Mediator funcs.
+  void setObject(Object *obj);
+  void objectChanged(const Object &obj);
+
+  /**
+   * @brief Adds itself to the object layer.
+   * @details Adds this object and all its colleagues to the object layer.
+   * Ownership is belong to the layer which this object will be added to.
+   * @param layer Layer which this object will be added to.
+   */
+  void addToLayer(ObjectLayer &layer);
 
   const sf::String& getName() const;
   void setName(const sf::String &name);
@@ -45,13 +64,19 @@ public:
   PropertyReverseIterator propertiesREnd();
   PropertyConstReverseIterator propertiesREnd() const;
 
-  virtual void update();
-
+  void update(const sf::Time &time);
 
 private:
+  void drawableObjectChanged(const DrawableObjectt &obj);
+  void physicalObjectChanged(const PhysicalObjectt &obj);
+  void animatableObjectChanged(const AnimatableObjectt &obj);
+
   std::map<sf::String /* name */, sf::String /* value */> mProperties;
   sf::String mName, mType;
   sf::Vector2i mPosition;
+  std::unique_ptr<DrawableObjectt> mDrawableObj;
+  std::unique_ptr<PhysicalObjectt> mPhysicalObj;
+  std::unique_ptr<AnimatableObjectt> mAnimatableObj;
   bool mVisible = true;
 };
 

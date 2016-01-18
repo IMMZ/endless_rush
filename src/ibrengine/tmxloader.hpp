@@ -34,7 +34,7 @@ private:
   Layer* parseTileLayer(const rapidxml::xml_node<char> *layerNode);
   Layer* parseObjectLayer(Map *map, const rapidxml::xml_node<char> *layerNode);
   void parseObjects(Map *map, ObjectLayer *layer, const rapidxml::xml_node<char> *layerNode);
-  std::unique_ptr<MapObject> parseObject(Map *map, const rapidxml::xml_node<char> *objNode);
+  void parseObject(Map *map, ObjectLayer *layer, const rapidxml::xml_node<char> *objNode);
   std::unique_ptr<Animation>
   parseAnimation(int startId, int animId, const rapidxml::xml_node<char> *animNode);
   void parsePoints(const rapidxml::xml_node<char> *polygonNode, ComplexShape *shape);

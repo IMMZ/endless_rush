@@ -2,13 +2,12 @@
 
 #include "tmxloader.hpp"
 
-#include "animatableobject.hpp"
 #include "complexshape.hpp"
 #include "maploadexception.hpp"
 #include "objectlayer.hpp"
 #include "simpleshape.hpp"
+#include "testik.hpp"
 #include "tilelayer.hpp"
-#include "tileobject.hpp"
 #include "tileset.hpp"
 #include "utils.hpp"
 #include "xmlparseexception.hpp"
@@ -255,13 +254,12 @@ void TmxLoader::parseObjects(Map *map, ObjectLayer *layer,
   rapidxml::xml_node<char> *objNode = layerNode->first_node("object");
   while (objNode != nullptr)
   {
-    layer->addObject(this->parseObject(map, objNode));
+    this->parseObject(map, layer, objNode);
     objNode = objNode->next_sibling("object");
   }
 }
 
-std::unique_ptr<MapObject>
-TmxLoader::parseObject(Map *map, const rapidxml::xml_node<char> *objNode)
+void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const rapidxml::xml_node<char> *objNode)
 {
   // All objects have name and position so we can parse them at first.
   sf::String name, type; sf::Vector2i pos; bool visible = true;
@@ -286,19 +284,20 @@ TmxLoader::parseObject(Map *map, const rapidxml::xml_node<char> *objNode)
   rapidxml::xml_attribute<char> *wAttr = objNode->first_attribute("width");
   rapidxml::xml_attribute<char> *hAttr = objNode->first_attribute("height"); // TODO: make const
   const rapidxml::xml_attribute<char> *gidAttr = objNode->first_attribute("gid");
-  if (wAttr != nullptr && hAttr != nullptr) // Square/Circle/TileObject/AnimatableObject.
+  MapObject *mapObj = new MapObject(name);
+  this->parseProperties(mapObj, objNode);
+  if (wAttr != nullptr && hAttr != nullptr) // Physical(Square/Circle)/DrawableObject
   {
-    if (gidAttr != nullptr) // TileObject/AnimatableObject
+    if (gidAttr != nullptr) // DrawableObject/AnimatableObject
     {
       int w = utils::stdStringToInt(wAttr->value());
       int h = utils::stdStringToInt(hAttr->value());
       int gid = utils::stdStringToInt(gidAttr->value());
       if (type == "animatable") // AnimatableObject
       {
-        std::unique_ptr<AnimatableObject> animObj(new AnimatableObject(name, gid));
-        this->parseProperties(animObj.get(), objNode); // TODO: EXTRACT
-        AnimatableObject::PropertyConstIterator i = animObj->propertiesBegin();
-        while (i != animObj->propertiesEnd())
+        AnimatableObjectt *animObj = new AnimatableObjectt(name, *mapObj, gid);
+        MapObject::PropertyConstIterator i = mapObj->propertiesBegin();
+        while (i != mapObj->propertiesEnd())
         {
           if (i->first.find("anim_") == 0) // property name starts with 'anim'
           {
@@ -309,15 +308,15 @@ TmxLoader::parseObject(Map *map, const rapidxml::xml_node<char> *objNode)
         }
         animObj->setPosition(pos);
         animObj->setSize(sf::Vector2i(w, h));
-        return std::move(animObj);
       }
-      std::unique_ptr<TileObject> tileObj(new TileObject(name, gid));
-      this->parseProperties(tileObj.get(), objNode); // TODO: EXTRACT
-      tileObj->setPosition(pos);
-      tileObj->setSize(sf::Vector2i(w, h));
-      return std::move(tileObj);
+
+      DrawableObjectt *drawObj = new DrawableObjectt(*mapObj);
+
+      drawObj->setTileId(gid);
+      drawObj->setPosition(pos);
+      drawObj->setSize(sf::Vector2i(w, h));
     }
-    SimpleShape::Type shapeType = SimpleShape::Type::Square;
+    /*SimpleShape::Type shapeType = SimpleShape::Type::Square;
     int w = utils::stdStringToInt(wAttr->value());
     int h = utils::stdStringToInt(hAttr->value());
     if (objNode->first_node("ellipse") != nullptr)
@@ -326,10 +325,11 @@ TmxLoader::parseObject(Map *map, const rapidxml::xml_node<char> *objNode)
     this->parseProperties(shape.get(), objNode); // TODO: EXTRACT
     shape->setPosition(pos);
     shape->setSize(sf::Vector2i(w, h));
-    shape->setType(type);
-    return std::move(shape);
+    shape->setType(type);*/
+    mapObj->addToLayer(*layer);
   }
 
+  /*// Complex shape (Polygon / Polyline)
   rapidxml::xml_node<char> *objInnerNode = objNode->first_node("polygon");
   ComplexShape::Type shapeType = ComplexShape::Type::Polygon;
   if (objInnerNode == nullptr)
@@ -341,7 +341,7 @@ TmxLoader::parseObject(Map *map, const rapidxml::xml_node<char> *objNode)
   this->parseProperties(shape.get(), objNode);
   this->parsePoints(objInnerNode, shape.get());
   shape->setType(type);
-  return std::move(shape);
+  */
 }
 
 std::unique_ptr<Animation>
