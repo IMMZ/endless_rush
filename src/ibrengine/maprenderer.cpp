@@ -141,7 +141,8 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
           color.a = 255 * layer->getOpacity();
           sprite.setColor(color);
         }
-        sprite.setPosition(x * mMap->getTileW(), y * mMap->getTileH());
+
+        sprite.setPosition(x * mMap->getTileW(), y * mMap->getTileH() - sprite.getLocalBounds().height);
         mRenderTarget.draw(sprite);
       }
     }
