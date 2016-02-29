@@ -3,7 +3,7 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
-#include <SFML/System/Vector2.hpp>
+#include <global.hpp>
 
 namespace ibrengine
 {
@@ -12,20 +12,13 @@ class Object;
 
 }
 
-namespace sf
-{
-
-class RenderTarget;
-
-}
-
 class GameObject
 {
 public:
   explicit GameObject(ibrengine::Object *mapObj);
 
-  const sf::Vector2i& getPosition() const;
-  void setPosition(const sf::Vector2i &pos);
+  const ibrengine::PositionI& getPosition() const;
+  void setPosition(const ibrengine::PositionI &pos);
 
 protected:
   ibrengine::Object* getMapObj();

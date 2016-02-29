@@ -6,6 +6,8 @@
 #include "gamestate.hpp"
 #include "input.hpp"
 
+#include <SFML/System/String.hpp>
+
 namespace sf
 {
 
@@ -30,11 +32,14 @@ public:
   GameState requestedState() const { return mState; }
   sf::RenderTarget* getRenderTarget() { return mRenderTarget; }
   void setRenderTarget(sf::RenderTarget *target) { mRenderTarget = target; }
+  const sf::String& getUsedSound() const { return mUsedSound; }
 
 protected:
+  void setUsedSound(const sf::String &usedSound) { mUsedSound = usedSound; }
   void requestStateChange(GameState state) { mState = state; mStateChangeRequested = true; }
 
 private:
+  sf::String mUsedSound;
   sf::RenderTarget *mRenderTarget = nullptr;
   GameState mState = GameState::Undefined;
   bool mStateChangeRequested = false;

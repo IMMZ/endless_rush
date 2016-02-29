@@ -5,9 +5,10 @@
 namespace ibrengine
 {
 
-Layer::Layer(const std::string &name, int w, int h):
+Layer::Layer(const std::string &name, Type type, int w, int h):
   mName(name),
-  mW(w), mH(h)
+  mW(w), mH(h),
+  mType(type)
 {
 }
 
@@ -53,6 +54,11 @@ void Layer::setOpacity(float opacity)
     mOpacity = 1.0f;
   else
     mOpacity = opacity;
+}
+
+Layer::Type Layer::getType() const
+{
+  return mType;
 }
 
 } // namespace ibrengine

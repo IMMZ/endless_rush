@@ -15,7 +15,6 @@
 namespace ibrengine
 {
 
-class ComplexShape;
 class Layer;
 class ObjectLayer;
 class TileLayer;
@@ -27,20 +26,25 @@ public:
   std::unique_ptr<Map> loadMap(const std::string &tmxPath);
 
 private:
-  Map* parseMap(const rapidxml::xml_node<char> *mapNode);
+  using XmlNode = rapidxml::xml_node<char>;
+  using XmlAttribute = rapidxml::xml_attribute<char>;
+
+  void parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNode *objectNode); // TODO: parseShape rename
+  Map* parseMap(const XmlNode *mapNode);
   std::shared_ptr<Tileset>
-  parseTileset(Map *map, const rapidxml::xml_node<char> *tilesetNode);
-  void parseTilesets(Map *map, const rapidxml::xml_node<char> *mapNode);
-  Layer* parseTileLayer(const rapidxml::xml_node<char> *layerNode);
-  Layer* parseObjectLayer(Map *map, const rapidxml::xml_node<char> *layerNode);
-  void parseObjects(Map *map, ObjectLayer *layer, const rapidxml::xml_node<char> *layerNode);
-  void parseObject(Map *map, ObjectLayer *layer, const rapidxml::xml_node<char> *objNode);
+  parseTileset(Map *map, const XmlNode *tilesetNode);
+  void parseTilesets(Map *map, const XmlNode *mapNode);
+  Layer* parseTileLayer(const XmlNode *layerNode);
+  Layer* parseObjectLayer(Map *map, const XmlNode *layerNode);
+  void parseObjects(Map *map, ObjectLayer *layer, const XmlNode *layerNode);
+  void parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode);
   std::unique_ptr<Animation>
-  parseAnimation(int startId, int animId, const rapidxml::xml_node<char> *animNode);
-  void parsePoints(const rapidxml::xml_node<char> *polygonNode, ComplexShape *shape);
-  void parseLayerData(TileLayer *layer, const rapidxml::xml_node<char> *dataNode);
-  void parseLayers(Map *map, const rapidxml::xml_node<char> *mapNode);
-  void parseProperties(MapObject *mapObj, const rapidxml::xml_node<char> *objNode);
+  parseAnimation(int startId, int animId, const XmlNode *animNode);
+  void parsePhysAnim(Map &map, int tileId, const XmlNode *objGroupNode); // TODO: rename parseShapeGroups
+  //void parsePoints(const XmlNode *polygonNode, ComplexShape *shape);
+  void parseLayerData(TileLayer *layer, const XmlNode *dataNode);
+  void parseLayers(Map *map, const XmlNode *mapNode);
+  void parseProperties(MapObject *mapObj, const XmlNode *objNode);
 
   std::unique_ptr<rapidxml::xml_document<char>> mXmlDoc;
   std::unique_ptr<char[]> mFileBytes; // The bytes should exist while parsing.

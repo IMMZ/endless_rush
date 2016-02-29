@@ -10,8 +10,15 @@ namespace ibrengine
 
 class Layer
 {
-public: // TODO: add enum class Type { Tile, Object, Image }
-  Layer(const std::string &name, int w, int h);
+public:
+  enum class Type
+  {
+    Tile,
+    Object,
+    Image
+  };
+
+  Layer(const std::string &name, Type type, int w, int h);
   virtual ~Layer();
 
   const std::string &getName() const;
@@ -22,11 +29,13 @@ public: // TODO: add enum class Type { Tile, Object, Image }
   void setVisible(bool visible);
   float getOpacity() const;
   void setOpacity(float opacity);
+  Type getType() const;
 
 private:
   std::string mName;
   float mOpacity = 1.0f;
   int mW, mH;
+  Type mType = Type::Tile;
   bool mVisible = true;
 };
 

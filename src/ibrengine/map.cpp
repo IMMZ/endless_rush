@@ -2,7 +2,7 @@
 
 #include "map.hpp"
 #include "objectlayer.hpp"
-
+#include <iostream> // TODO: remove
 namespace ibrengine
 {
 
@@ -152,18 +152,14 @@ Animation* Map::getAnimation(int animId)
   return mAnimations.at(animId).get();
 }
 
-void Map::addCollisionObject(int tileId, const std::shared_ptr<MapObject> &collisionObj)
+void Map::addShapeGroup(int tileId, const PhysicObject::ShapeGroup &shapeGrp)
 {
-  mCollisionObjs.insert(std::make_pair(tileId, collisionObj));
+  mCollisionShapeGroups.insert(std::make_pair(tileId, shapeGrp));
 }
 
-/*
- * At this time we support only one object for tile.
- * TODO: make multiply or single object.
- */
-MapObject* Map::getCollisionObject(int tileId)
+const PhysicObject::ShapeGroup& Map::getShapeGroup(int tileId) const
 {
-  mCollisionObjs.equal_range(tileId).first->second.get();
+  return mCollisionShapeGroups.at(tileId);
 }
 
 } // namespace ibrengine

@@ -20,8 +20,17 @@
 namespace internal
 {
 
+const std::array<sf::String, 4> IntroState::mTexts =
+{{
+      "IbramLab presents",
+      "Programming by Mamed Ibrahimov",
+      "Music by Goryn Doroshenko",
+      "Russia, 2016"
+}};
+
 IntroState::IntroState()
 {
+  this->setUsedSound("kane.ogg");
   mFont.loadFromFile("font.ttf"); // TODO: handle loading error
   mText.setString(mTexts[mCurrentText]);
   mText.setFont(mFont);
@@ -37,7 +46,6 @@ void IntroState::draw(sf::RenderTarget &target)
 void IntroState::handleInput(Input::Action act)
 {
   // Intro isn't skipped.
-  unused(act);
 }
 
 void IntroState::update(const sf::Time &time)

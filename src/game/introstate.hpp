@@ -9,7 +9,7 @@
 
 #include "igamestate.hpp"
 
-#include <vector>
+#include <array>
 
 namespace internal
 {
@@ -34,16 +34,11 @@ private:
   bool hasNextText();
   void setNextText();
 
-  static const int ALPHA_CHANGING_INTERVAL_MS = 100;
-  static const int ALPHA_CHANGE_VALUE = 30;
+  static constexpr int ALPHA_CHANGING_INTERVAL_MS = 100;
+  static constexpr int ALPHA_CHANGE_VALUE = 30;
 
-  const std::vector<sf::String> mTexts =
-  {
-    "IbramLab presents",
-    "Programming by Mamed Ibrahimov",
-    "Music by Goryn Doroshenko",
-    "Russia, 2015"
-  };
+  static const std::array<sf::String, 4> mTexts;
+
   sf::Font mFont;
   sf::Text mText;
   sf::Clock mTimer;

@@ -11,6 +11,7 @@
 #include "pausestate.hpp"
 #include "settings.hpp"
 
+#include <SFML/Audio/Music.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
@@ -40,7 +41,10 @@ void Game::start()
 {
   this->setState(mState);
   sf::RenderWindow window(Settings::instance().getVideoMode(), NAME);
-
+  sf::Music gameStateMusic;
+  gameStateMusic.openFromFile(mCurrentState->getUsedSound());
+  gameStateMusic.setVolume(80.0);
+  gameStateMusic.play();
   mIntroState.get()->setRenderTarget(&window);
   mMenuState.get()->setRenderTarget(&window);
   mInGameState.get()->setRenderTarget(&window);
@@ -74,7 +78,15 @@ void Game::start()
       elapsedTime -= UPDATES_PER_SECOND;
       mCurrentState->update(UPDATES_PER_SECOND);
       if (mCurrentState->isStateChangeRequested())
+      {
         this->setState(mCurrentState->requestedState());
+        gameStateMusic.stop();
+        if (!mCurrentState->getUsedSound().isEmpty())
+        {
+          gameStateMusic.openFromFile(mCurrentState->getUsedSound());
+          gameStateMusic.play();
+        }
+      }
     }
     window.clear();
     mCurrentState->draw(window);

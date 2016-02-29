@@ -1,9 +1,9 @@
 // TODO: license text
 
-#ifndef OBJECT_HPP_
-#define OBJECT_HPP_
+#ifndef OBJECT_HPP
+#define OBJECT_HPP
 
-#include <SFML/System/Vector2.hpp>
+#include "global.hpp"
 
 namespace sf
 {
@@ -24,35 +24,34 @@ public:
   /** @enum Type
    * @brief Represents the object type.
    */
-  enum class Type
+  enum class Type // TODO: Is it really need?
   {
-    None = 0,
-    Drawable = 1, ///!< The object can be drawn.
-    Physical = 2, ///!< The object is used in physical calculations.
-    Animatable = 4, ///!< The object is animation.
-    Full = Drawable
-          | Physical
-          | Animatable ///!< The object which can be drawn, animated and used by physic engine.
+    Drawable, ///!< The object can be drawn.
+    Physical, ///!< The object is used in physical calculations.
+    Animatable, ///!< The object is animation.
   };
 
   Object(MapObject &director, Type type);
   virtual ~Object();
 
-  const sf::Vector2i& getPosition() const;
-  void setPosition(const sf::Vector2i &pos);
-  const sf::Vector2i& getSize() const;
-  void setSize(const sf::Vector2i &size);
+  const PositionI& getPosition() const;
+  void setPosition(const PositionI &pos);
+  const PositionI& getSize() const;
+  void setSize(const PositionI &size);
   Type getType() const;
   void setChanged();
+  bool isDrawable() const;
+  bool isAnimatable() const;
+  bool isPhysical() const;
 
-  virtual void update(const sf::Time &time);
+  virtual void update(const sf::Time &time) = 0;
 
 private:
-  sf::Vector2i mPos, mSize;
+  PositionI mPos, mSize;
   MapObject &mDirector;
-  Type mType = Type::None;
+  Type mType;
 };
 
 } // namespace ibrengine
 
-#endif // OBJECT_HPP_
+#endif // OBJECT_HPP

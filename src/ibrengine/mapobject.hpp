@@ -14,10 +14,12 @@
 namespace ibrengine
 {
 
+class AnimatableObject;
+class DrawableObject;
 class ObjectLayer;
-class DrawableObjectt;
-class PhysicalObjectt;
-class AnimatableObjectt;
+class PhysicObject;
+class AnimatablePhysObject;
+class Shape;
 
 // TODO: rename to 'MapUnit'
 class MapObject
@@ -44,8 +46,8 @@ public:
 
   const sf::String& getName() const;
   void setName(const sf::String &name);
-  const sf::Vector2i& getPosition() const;
-  void setPosition(const sf::Vector2i &pos);
+  const PositionI& getPosition() const;
+  void setPosition(const PositionI &pos);
   bool isVisible() const;
   void setVisible(bool visible);
   const sf::String& getType() const;
@@ -67,16 +69,16 @@ public:
   void update(const sf::Time &time);
 
 private:
-  void drawableObjectChanged(const DrawableObjectt &obj);
-  void physicalObjectChanged(const PhysicalObjectt &obj);
-  void animatableObjectChanged(const AnimatableObjectt &obj);
+  void drawableObjectChanged(const DrawableObject &obj);
+  void physicalObjectChanged(const PhysicObject &obj);
+  void animatableObjectChanged(const AnimatableObject &obj);
 
   std::map<sf::String /* name */, sf::String /* value */> mProperties;
   sf::String mName, mType;
-  sf::Vector2i mPosition;
-  std::unique_ptr<DrawableObjectt> mDrawableObj;
-  std::unique_ptr<PhysicalObjectt> mPhysicalObj;
-  std::unique_ptr<AnimatableObjectt> mAnimatableObj;
+  PositionI mPosition;
+  std::unique_ptr<DrawableObject> mDrawableObj;
+  std::unique_ptr<PhysicObject> mPhysicalObj;
+  std::unique_ptr<AnimatableObject> mAnimatableObj;
   bool mVisible = true;
 };
 

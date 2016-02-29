@@ -2,20 +2,24 @@
 
 #include "tmxloader.hpp"
 
-#include "complexshape.hpp"
+#include "box.hpp"
+#include "circle.hpp"
+#include "global.hpp"
 #include "maploadexception.hpp"
 #include "objectlayer.hpp"
-#include "simpleshape.hpp"
-#include "testik.hpp"
+#include "physicobject.hpp"
 #include "tilelayer.hpp"
 #include "tileset.hpp"
 #include "utils.hpp"
 #include "xmlparseexception.hpp"
 
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <memory>
 #include <iostream> // todo: remove
+#include "animatableobject.hpp"
+#include "drawableobject.hpp"
 
 namespace ibrengine
 {
@@ -46,7 +50,54 @@ std::unique_ptr<Map> TmxLoader::loadMap(const std::string &tmxPath)
   return m;
 }
 
-Map* TmxLoader::parseMap(const rapidxml::xml_node<char> *mapNode)
+/*
+ * Find out the shape type of object by it's xml structure.
+ * Square and Circle have 'width' and 'height' attributes. Circle also has
+ * '</ellipse>' subnode.
+ * Polygon has 'polygon_points' subnode.
+ * Polyline has 'poline_points' subnode.
+ */
+void TmxLoader::parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNode *objectNode)
+{
+  if (objectNode == nullptr)
+    return;
+
+  // Getting information about xml structure.
+  const XmlAttribute* widthAttr = objectNode->first_attribute("width");
+  const XmlAttribute* heightAttr = objectNode->first_attribute("height");
+  const XmlAttribute* gidAttr = objectNode->first_attribute("gid");
+  const XmlNode* ellipseNode = objectNode->first_node("ellipse");
+  const XmlAttribute *xAttr = objectNode->first_attribute("x");
+  const XmlAttribute *yAttr = objectNode->first_attribute("y");
+
+  // TODO: add support for polygon, edge and chain.
+  if (widthAttr != nullptr && heightAttr != nullptr) // Box/Circle.
+  {
+    std::shared_ptr<internal::Shape> shape;
+    if (ellipseNode != nullptr) // Circle.
+    {
+      if (strcmp(widthAttr->value(), heightAttr->value()) != 0)
+        throw MapLoadException("The width and height of a circle are not equal.");
+
+      ::std::cout << "  Added a cricle to the shape group" << ::std::endl;
+      shape = std::make_shared<internal::Circle>(utils::stdStringToNumber<float>(widthAttr->value()));
+    }
+    else
+    {
+      ::std::cout << "  Added a box to the shape group" << ::std::endl;
+      shape = std::make_shared<internal::Box>(
+        utils::stdStringToNumber<int>(widthAttr->value()),
+        utils::stdStringToNumber<int>(heightAttr->value()));
+    }
+    shape->setPosition(
+      std::make_pair(
+        utils::stdStringToNumber<int>(xAttr->value()),
+        utils::stdStringToNumber<int>(yAttr->value())));
+    shapeGrp.push_back(shape);
+  }
+}
+
+Map* TmxLoader::parseMap(const XmlNode *mapNode)
 {
   if (strcmp(mapNode->name(), "map") != 0)
     throw new MapLoadException("No 'map' node at the beggining of the file.");
@@ -55,7 +106,7 @@ Map* TmxLoader::parseMap(const rapidxml::xml_node<char> *mapNode)
   Map::Orientation mapOrient = Map::Orientation::Orthogonal; // Default orientation.
   int mapW, mapH;
   int mapTileW, mapTileH;
-  rapidxml::xml_attribute<char> *attr = mapNode->first_attribute();
+  XmlAttribute *attr = mapNode->first_attribute();
   while (attr != nullptr)
   {
     if (strcmp(attr->name(), "version") == 0)
@@ -74,19 +125,19 @@ Map* TmxLoader::parseMap(const rapidxml::xml_node<char> *mapNode)
     }
     else if (strcmp(attr->name(), "width") == 0)
     {
-      mapW = utils::stdStringToInt(attr->value());
+      mapW = utils::stdStringToNumber<int>(attr->value());
     }
     else if (strcmp(attr->name(), "height") == 0)
     {
-      mapH = utils::stdStringToInt(attr->value());
+      mapH = utils::stdStringToNumber<int>(attr->value());
     }
     else if (strcmp(attr->name(), "tilewidth") == 0)
     {
-      mapTileW = utils::stdStringToInt(attr->value());
+      mapTileW = utils::stdStringToNumber<int>(attr->value());
     }
     else if (strcmp(attr->name(), "tileheight") == 0)
     {
-      mapTileH = utils::stdStringToInt(attr->value());
+      mapTileH = utils::stdStringToNumber<int>(attr->value());
     }
     attr = attr->next_attribute();
   }
@@ -100,8 +151,8 @@ Map* TmxLoader::parseMap(const rapidxml::xml_node<char> *mapNode)
 }
 
 std::shared_ptr<Tileset>
-TmxLoader::parseTileset(Map *map, const rapidxml::xml_node<char> *tilesetNode)
-{
+TmxLoader::parseTileset(Map *map, const XmlNode *tilesetNode)
+{::std::cout << "Parsing tileset..." << ::std::endl;
   if (strcmp(tilesetNode->name(), "tileset") != 0)
     throw new MapLoadException("Wrong tileset node");
 
@@ -109,23 +160,24 @@ TmxLoader::parseTileset(Map *map, const rapidxml::xml_node<char> *tilesetNode)
   sf::Color transparentColor;
   int firstTileId, imgW, imgH, tileW, tileH;
 
-  rapidxml::xml_attribute<char> *attr = tilesetNode->first_attribute();
+  XmlAttribute *attr = tilesetNode->first_attribute();
   while (attr != nullptr)
   {
     if (strcmp(attr->name(), "firstgid") == 0)
-      firstTileId = utils::stdStringToInt(attr->value());
+      firstTileId = utils::stdStringToNumber<int>(attr->value());
     else if (strcmp(attr->name(), "name") == 0)
       name = attr->value();
     else if (strcmp(attr->name(), "tilewidth") == 0)
-      tileW = utils::stdStringToInt(attr->value());
+      tileW = utils::stdStringToNumber<int>(attr->value());
     else if (strcmp(attr->name(), "tileheight") == 0)
-      tileH = utils::stdStringToInt(attr->value());
+      tileH = utils::stdStringToNumber<int>(attr->value());
     attr = attr->next_attribute();
   }
 
+  ::std::cout << "  Name: " << name << ::std::endl;
   // Parsing image.
-  rapidxml::xml_node<char> *imgNode = tilesetNode->first_node("image");
-  rapidxml::xml_attribute<char> *imgAttr = imgNode->first_attribute();
+  XmlNode *imgNode = tilesetNode->first_node("image");
+  XmlAttribute *imgAttr = imgNode->first_attribute();
   while (imgAttr != nullptr)
   {
     if (strcmp(imgAttr->name(), "source") == 0)
@@ -133,41 +185,46 @@ TmxLoader::parseTileset(Map *map, const rapidxml::xml_node<char> *tilesetNode)
     else if (strcmp(imgAttr->name(), "trans") == 0)
       transparentColor = utils::hexColorToSFMLColor(imgAttr->value());
     else if (strcmp(imgAttr->name(), "width") == 0)
-      imgW = utils::stdStringToInt(imgAttr->value());
+      imgW = utils::stdStringToNumber<int>(imgAttr->value());
     else if (strcmp(imgAttr->name(), "height") == 0)
-      imgH = utils::stdStringToInt(imgAttr->value());
+      imgH = utils::stdStringToNumber<int>(imgAttr->value());
     imgAttr = imgAttr->next_attribute();
   }
 
   // Parsing animation.
-  const rapidxml::xml_node<char> *tileNode = tilesetNode->first_node("tile");
-  if (tileNode != nullptr)
+  const XmlNode *tileNode = tilesetNode->first_node("tile");
+  while (tileNode != nullptr)
   {
-    int tileId = utils::stdStringToInt(tileNode->first_attribute("id")->value());
+    int tileId = utils::stdStringToNumber<int>(tileNode->first_attribute("id")->value());
     // Parsing 'anim_id' property.
     int animId = -1;
-    const rapidxml::xml_node<char> *propertiesNode = tileNode->first_node("properties");
+    const XmlNode *propertiesNode = tileNode->first_node("properties");
     if (propertiesNode != nullptr)
     {
-      const rapidxml::xml_node<char> *propertyNode = propertiesNode->first_node("property");
-      if (propertiesNode != nullptr)
-        animId = utils::stdStringToInt(propertyNode->first_attribute("value")->value());
+      const XmlNode *propertyNode = propertiesNode->first_node("property");
+      while (propertyNode != nullptr)
+      {
+        if (strcmp(propertyNode->first_attribute("name")->value(), "anim_id") == 0)
+        {
+          animId = utils::stdStringToNumber<int>(propertyNode->first_attribute("value")->value());
+          break;
+        }
+        else
+        {
+          propertyNode = propertyNode->next_sibling();
+        }
+      }
     }
-    const rapidxml::xml_node<char> *animationNode = tileNode->first_node("animation");
+    const XmlNode *animationNode = tileNode->first_node("animation");
     if (animationNode != nullptr)
       map->addAnimation(this->parseAnimation(firstTileId, animId, animationNode));
 
     // Parsing collision objects.
-    const rapidxml::xml_node<char> *objsNode = tileNode->first_node("objectgroup");
+    const XmlNode *objsNode = tileNode->first_node("objectgroup");
     if (objsNode != nullptr)
-    {
-      const rapidxml::xml_node<char> *objNode = objsNode->first_node("object");
-      while (objNode != nullptr)
-      {
-        // TODO add it somewhere this->parseObject(objNode));
-        objNode = objNode->next_sibling("object");
-      }
-    }
+      this->parsePhysAnim(*map, firstTileId + tileId, objsNode);
+
+    tileNode = tileNode->next_sibling();
   }
 
   std::shared_ptr<Tileset> tSet =
@@ -177,9 +234,9 @@ TmxLoader::parseTileset(Map *map, const rapidxml::xml_node<char> *tilesetNode)
   return tSet;
 }
 
-void TmxLoader::parseTilesets(Map *map, const rapidxml::xml_node<char> *mapNode)
+void TmxLoader::parseTilesets(Map *map, const XmlNode *mapNode)
 {
-  const rapidxml::xml_node<char> *tSetNode = mapNode->first_node("tileset");
+  const XmlNode *tSetNode = mapNode->first_node("tileset");
   while (tSetNode != nullptr)
   {
     map->addTileset(this->parseTileset(map, tSetNode));
@@ -187,30 +244,30 @@ void TmxLoader::parseTilesets(Map *map, const rapidxml::xml_node<char> *mapNode)
   }
 }
 
-Layer* TmxLoader::parseTileLayer(const rapidxml::xml_node<char> *layerNode)
+Layer* TmxLoader::parseTileLayer(const XmlNode *layerNode)
 { // TODO: parse speed
   std::string name;
   int w, h;
   bool visible = true;
   float opacity = 1.0f;
-  rapidxml::xml_attribute<char> *layerAttr = layerNode->first_attribute();
+  XmlAttribute *layerAttr = layerNode->first_attribute();
   while (layerAttr != nullptr)
   {
     if (strcmp(layerAttr->name(), "name") == 0)
       name = layerAttr->value();
     else if (strcmp(layerAttr->name(), "width") == 0)
-      w = utils::stdStringToInt(layerAttr->value());
+      w = utils::stdStringToNumber<int>(layerAttr->value());
     else if (strcmp(layerAttr->name(), "height") == 0)
-      h = utils::stdStringToInt(layerAttr->value());
+      h = utils::stdStringToNumber<int>(layerAttr->value());
     else if (strcmp(layerAttr->name(), "opacity") == 0)
-      opacity = utils::stdStringToFloat(layerAttr->value());
+      opacity = utils::stdStringToNumber<float>(layerAttr->value());
     else if (strcmp(layerAttr->name(), "visible") == 0
       && strcmp(layerAttr->value(), "0") == 0)
       visible = false;
     layerAttr = layerAttr->next_attribute();
   }
   TileLayer *layer = new TileLayer(name, w, h);
-  const rapidxml::xml_node<char> *dataNode = layerNode->first_node("data");
+  const XmlNode *dataNode = layerNode->first_node("data");
   if (strcmp(dataNode->first_attribute("encoding")->value(), "csv") != 0)
     throw new MapLoadException("Wrong layer encoding. Only CSV is supported");
   this->parseLayerData(layer, dataNode);
@@ -219,23 +276,23 @@ Layer* TmxLoader::parseTileLayer(const rapidxml::xml_node<char> *layerNode)
   return layer;
 }
 
-Layer* TmxLoader::parseObjectLayer(Map *map, const rapidxml::xml_node<char> *layerNode)
+Layer* TmxLoader::parseObjectLayer(Map *map, const XmlNode *layerNode)
 {// TODO: extract this
   std::string name;
   int w, h;
   bool visible = true;
   float opacity = 1.0f;
-  rapidxml::xml_attribute<char> *layerAttr = layerNode->first_attribute();
+  XmlAttribute *layerAttr = layerNode->first_attribute();
   while (layerAttr != nullptr)
   {
     if (strcmp(layerAttr->name(), "name") == 0)
       name = layerAttr->value();
     else if (strcmp(layerAttr->name(), "width") == 0)
-      w = utils::stdStringToInt(layerAttr->value());
+      w = utils::stdStringToNumber<int>(layerAttr->value());
     else if (strcmp(layerAttr->name(), "height") == 0)
-      h = utils::stdStringToInt(layerAttr->value());
+      h = utils::stdStringToNumber<int>(layerAttr->value());
     else if (strcmp(layerAttr->name(), "opacity") == 0)
-      opacity = utils::stdStringToFloat(layerAttr->value());
+      opacity = utils::stdStringToNumber<float>(layerAttr->value());
     else if (strcmp(layerAttr->name(), "visible") == 0
       && strcmp(layerAttr->value(), "0") == 0)
       visible = false;
@@ -248,10 +305,9 @@ Layer* TmxLoader::parseObjectLayer(Map *map, const rapidxml::xml_node<char> *lay
   return layer;
 }
 
-void TmxLoader::parseObjects(Map *map, ObjectLayer *layer,
-  const rapidxml::xml_node<char> *layerNode)
+void TmxLoader::parseObjects(Map *map, ObjectLayer *layer, const XmlNode *layerNode)
 {
-  rapidxml::xml_node<char> *objNode = layerNode->first_node("object");
+  XmlNode *objNode = layerNode->first_node("object");
   while (objNode != nullptr)
   {
     this->parseObject(map, layer, objNode);
@@ -259,109 +315,229 @@ void TmxLoader::parseObjects(Map *map, ObjectLayer *layer,
   }
 }
 
-void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const rapidxml::xml_node<char> *objNode)
+/* TODO: Maybe we can create the object from Object::Type flags?
+ * 1) Create a flags from custom properties.
+ * 2) Pass them to something 'this->createObjects(flags);'
+ */
+void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode)
 {
   // All objects have name and position so we can parse them at first.
-  sf::String name, type; sf::Vector2i pos; bool visible = true;
-  rapidxml::xml_attribute<char> *nameAttr = objNode->first_attribute("name");
-  rapidxml::xml_attribute<char> *typeAttr = objNode->first_attribute("type");
-  rapidxml::xml_attribute<char> *xAttr = objNode->first_attribute("x");
-  rapidxml::xml_attribute<char> *yAttr = objNode->first_attribute("y");
+  sf::String name, type; PositionI pos; bool visible = true;
+  XmlAttribute *nameAttr = objNode->first_attribute("name");
+  XmlAttribute *typeAttr = objNode->first_attribute("type");
+  XmlAttribute *xAttr = objNode->first_attribute("x");
+  XmlAttribute *yAttr = objNode->first_attribute("y");
   if (nameAttr != nullptr)
     name = nameAttr->value();
+  std::string std_name = name.toAnsiString();
   if (typeAttr != nullptr)
     type = typeAttr->value();
-  pos.x = utils::stdStringToInt(xAttr->value());
-  pos.y = utils::stdStringToInt(yAttr->value());
+  pos.first = utils::stdStringToNumber<int>(xAttr->value());
+  pos.second = utils::stdStringToNumber<int>(yAttr->value());
 
-  /*
-   * Find out the type of object by it's xml structure.
-   * Square and Circle have 'width' and 'height' attributes. Circle also has
-   * '</ellipse>' subnode.
-   * Polygon has 'polygon_points' subnode.
-   * Polyline has 'poline_points' subnode.
-   */
-  rapidxml::xml_attribute<char> *wAttr = objNode->first_attribute("width");
-  rapidxml::xml_attribute<char> *hAttr = objNode->first_attribute("height"); // TODO: make const
-  const rapidxml::xml_attribute<char> *gidAttr = objNode->first_attribute("gid");
+  XmlAttribute *wAttr = objNode->first_attribute("width");
+  XmlAttribute *hAttr = objNode->first_attribute("height"); // TODO: make const
+  const XmlAttribute *gidAttr = objNode->first_attribute("gid");
   MapObject *mapObj = new MapObject(name);
-  this->parseProperties(mapObj, objNode);
-  if (wAttr != nullptr && hAttr != nullptr) // Physical(Square/Circle)/DrawableObject
+  this->parseProperties(mapObj, objNode); // TODO: better to accept MapObject&?
+
+  // Getting the type of the object.
+  bool drawable = (gidAttr != nullptr);
+  bool physical = mapObj->hasProperty("physical") ?
+    utils::stringToBool(mapObj->getProperty("physical")) :
+    false;
+  bool animatable = mapObj->hasProperty("animatable") ?
+    utils::stringToBool(mapObj->getProperty("animatable")) :
+    false;
+
+  if (wAttr != nullptr && hAttr != nullptr) // Physical/DrawableObject
   {
-    if (gidAttr != nullptr) // DrawableObject/AnimatableObject
+    int w = utils::stdStringToNumber<int>(wAttr->value());
+    int h = utils::stdStringToNumber<int>(hAttr->value());
+
+    if (drawable) // DrawableObject/AnimatableObject
     {
-      int w = utils::stdStringToInt(wAttr->value());
-      int h = utils::stdStringToInt(hAttr->value());
-      int gid = utils::stdStringToInt(gidAttr->value());
-      if (type == "animatable") // AnimatableObject
+      // Create drawable part.
+      int gid = utils::stdStringToNumber<int>(gidAttr->value());
+      ::std::cout << "Add drawable object: " << name.toAnsiString() << ::std::endl;
+      DrawableObject *drawObj = new DrawableObject(*mapObj);
+      drawObj->setTileId(gid);
+      drawObj->setPosition(pos);
+      drawObj->setSize(std::make_pair(w, h));
+
+      if (animatable)
       {
-        AnimatableObjectt *animObj = new AnimatableObjectt(name, *mapObj, gid);
-        MapObject::PropertyConstIterator i = mapObj->propertiesBegin();
-        while (i != mapObj->propertiesEnd())
+        ::std::cout << "Add simple animation object: " << name.toAnsiString() << ::std::endl;
+        AnimatableObject *animObj = new AnimatableObject(name, *mapObj, gid);
+        animObj->mMap = map;
+        for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
         {
           if (i->first.find("anim_") == 0) // property name starts with 'anim'
           {
-            int animId = utils::stdStringToInt(i->second.toAnsiString());
+            int animId = utils::stdStringToNumber<int>(i->second.toAnsiString());
             animObj->addAnimation(i->first, map->getAnimation(animId));
           }
-          ++i;
         }
         animObj->setPosition(pos);
-        animObj->setSize(sf::Vector2i(w, h));
+        animObj->setSize(std::make_pair(w, h));
       }
 
-      DrawableObjectt *drawObj = new DrawableObjectt(*mapObj);
+      // Create physical part.
+      if (physical)
+      {
+        ::std::cout << "Add physical object: " << name.toAnsiString() << ::std::endl;
+        PhysicObject::Type objType = PhysicObject::Type::Static; // TODO: extract
 
-      drawObj->setTileId(gid);
-      drawObj->setPosition(pos);
-      drawObj->setSize(sf::Vector2i(w, h));
+        // At first finding out a type to create an object.
+        if (mapObj->hasProperty("bodyType"))
+        {
+          sf::String bodyTypeStr = mapObj->getProperty("bodyType");
+          if (bodyTypeStr == "kinematic")
+            objType = PhysicObject::Type::Kinematic;
+          else if (bodyTypeStr == "dynamic")
+            objType = PhysicObject::Type::Dynamic;
+        }
+        PhysicObject *physObj = new PhysicObject(*mapObj, objType);
+        physObj->setPosition(pos);
+        physObj->setShapeGroup(map->getShapeGroup(gid));
+
+        // Then treating other options.
+        for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
+        {
+          if (i->first == "active")
+            physObj->setActive(utils::stringToBool(i->second));
+          else if (i->first == "allowSleep")
+            physObj->setAllowSleep(utils::stringToBool(i->second));
+          else if (i->first == "awake")
+            physObj->setAwake(utils::stringToBool(i->second));
+          else if (i->first == "bullet")
+            physObj->setBullet(utils::stringToBool(i->second));
+          else if (i->first == "fixedRotation")
+            physObj->setFixedRotation(utils::stringToBool(i->second));
+          else if (i->first == "angle")
+            physObj->setAngle(utils::stdStringToNumber<float>(i->second));
+          else if (i->first == "angularDamping")
+            physObj->setAngularDamping(utils::stdStringToNumber<float>(i->second));
+          else if (i->first == "angularVelocity")
+            physObj->setAngularVelocity(utils::stdStringToNumber<float>(i->second));
+          else if (i->first == "gravityScale")
+            physObj->setGravityScale(utils::stdStringToNumber<float>(i->second));
+          else if (i->first == "linearDamping")
+            physObj->setLinearDamping(utils::stdStringToNumber<float>(i->second));
+          else if (i->first == "linearVelocity")
+          {
+            LinearVelocity linVel;
+            utils::sfStringToVector2d<float>(i->second, linVel);
+            physObj->setLinearVelocity(linVel);
+          }
+          else if (i->first == "density")
+            physObj->setDensity(utils::stdStringToNumber<float>(i->second));
+          else if (i->first == "friction")
+            physObj->setFriction(utils::stdStringToNumber<float>(i->second));
+          else if (i->first == "sensor")
+            physObj->setSensor(utils::stringToBool(i->second));
+          else if (i->first == "restitution")
+            physObj->setRestitution(utils::stdStringToNumber<float>(i->second));
+        }
+      }
     }
-    /*SimpleShape::Type shapeType = SimpleShape::Type::Square;
-    int w = utils::stdStringToInt(wAttr->value());
-    int h = utils::stdStringToInt(hAttr->value());
-    if (objNode->first_node("ellipse") != nullptr)
-      shapeType = SimpleShape::Type::Circle;
-    std::unique_ptr<SimpleShape> shape(new SimpleShape(name, shapeType));
-    this->parseProperties(shape.get(), objNode); // TODO: EXTRACT
-    shape->setPosition(pos);
-    shape->setSize(sf::Vector2i(w, h));
-    shape->setType(type);*/
-    mapObj->addToLayer(*layer);
-  }
+    else // PhysicalObject
+    {
+      ::std::cout << "Added physical object: " << name.toAnsiString() << ::std::endl;
+      PhysicObject::Type objType = PhysicObject::Type::Static;
 
-  /*// Complex shape (Polygon / Polyline)
-  rapidxml::xml_node<char> *objInnerNode = objNode->first_node("polygon");
-  ComplexShape::Type shapeType = ComplexShape::Type::Polygon;
-  if (objInnerNode == nullptr)
-  {
-    objInnerNode = objNode->first_node("polyline");
-    shapeType = ComplexShape::Type::Polyline;
+      // At first finding out a type to create an object.
+      if (mapObj->hasProperty("bodyType"))
+      {
+        sf::String bodyTypeStr = mapObj->getProperty("bodyType");
+        if (bodyTypeStr == "kinematic")
+          objType = PhysicObject::Type::Kinematic;
+        else if (bodyTypeStr == "dynamic")
+          objType = PhysicObject::Type::Dynamic;
+      }
+      PhysicObject *physObj = new PhysicObject(*mapObj, objType);
+      physObj->setPosition(pos);
+      PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
+      physObj->setShapeGroup(shapeGrp);
+
+      // Then treating other options.
+      for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
+      {
+        if (i->first == "active")
+          physObj->setActive(utils::stringToBool(i->second));
+        else if (i->first == "allowSleep")
+          physObj->setAllowSleep(utils::stringToBool(i->second));
+        else if (i->first == "awake")
+          physObj->setAwake(utils::stringToBool(i->second));
+        else if (i->first == "bullet")
+          physObj->setBullet(utils::stringToBool(i->second));
+        else if (i->first == "fixedRotation")
+          physObj->setFixedRotation(utils::stringToBool(i->second));
+        else if (i->first == "angle")
+          physObj->setAngle(utils::stdStringToNumber<float>(i->second));
+        else if (i->first == "angularDamping")
+          physObj->setAngularDamping(utils::stdStringToNumber<float>(i->second));
+        else if (i->first == "angularVelocity")
+          physObj->setAngularVelocity(utils::stdStringToNumber<float>(i->second));
+        else if (i->first == "gravityScale")
+          physObj->setGravityScale(utils::stdStringToNumber<float>(i->second));
+        else if (i->first == "linearDamping")
+          physObj->setLinearDamping(utils::stdStringToNumber<float>(i->second));
+        else if (i->first == "linearVelocity")
+        {
+          LinearVelocity linVel;
+          utils::sfStringToVector2d<float>(i->second, linVel);
+          physObj->setLinearVelocity(linVel);
+        }
+        else if (i->first == "density")
+          physObj->setDensity(utils::stdStringToNumber<float>(i->second));
+        else if (i->first == "friction")
+          physObj->setFriction(utils::stdStringToNumber<float>(i->second));
+        else if (i->first == "sensor")
+          physObj->setSensor(utils::stringToBool(i->second));
+        else if (i->first == "restitution")
+          physObj->setRestitution(utils::stdStringToNumber<float>(i->second));
+      }
+    }
+    mapObj->addToLayer(*layer);
+    layer->addMapObject(std::shared_ptr<MapObject>(mapObj));
   }
-  std::unique_ptr<ComplexShape> shape(new ComplexShape(name, shapeType));
-  this->parseProperties(shape.get(), objNode);
-  this->parsePoints(objInnerNode, shape.get());
-  shape->setType(type);
-  */
 }
 
 std::unique_ptr<Animation>
 TmxLoader::parseAnimation(int startId, int animId,
-  const rapidxml::xml_node<char> *animNode)
+  const XmlNode *animNode)
 {
-  std::unique_ptr<Animation> anim(new Animation(animId));
-  const rapidxml::xml_node<char> *frameNode = animNode->first_node("frame");
+  auto anim = internal::make_unique<Animation>(animId);
+  const XmlNode *frameNode = animNode->first_node("frame");
   while (frameNode != nullptr)
   {
     int tileId = startId
-      + utils::stdStringToInt(frameNode->first_attribute("tileid")->value());
-    int duration = utils::stdStringToInt(frameNode->first_attribute("duration")->value());
+      + utils::stdStringToNumber<int>(frameNode->first_attribute("tileid")->value());
+    int duration = utils::stdStringToNumber<int>(frameNode->first_attribute("duration")->value());
     anim->addFrame(tileId, duration);
     frameNode = frameNode->next_sibling("frame");
   }
   return std::move(anim);
 }
 
-void TmxLoader::parsePoints(const rapidxml::xml_node<char> *polygonNode,
+void TmxLoader::parsePhysAnim(Map &map, int tileId, const XmlNode *objGroupNode)
+{
+  const XmlNode *objNode = objGroupNode->first_node("object");
+  PhysicObject::ShapeGroup objGroup;
+  while (objNode != nullptr)
+  {
+    this->parseShapeGroup(objGroup, objNode);
+    objNode = objNode->next_sibling("object");
+    if (!objGroup.empty())
+    {
+      map.addShapeGroup(tileId, objGroup);
+      ::std::cout << "Added shapegroup to the map with id: " << tileId << ::std::endl;
+    }
+  }
+}
+
+/*void TmxLoader::parsePoints(const XmlNode *polygonNode,
   ComplexShape *shape)
 {
   std::vector<std::string> coordPairs;
@@ -377,10 +553,10 @@ void TmxLoader::parsePoints(const rapidxml::xml_node<char> *polygonNode,
     shape->addPoint(point);
     std::cout << "parsed point " << point.x << ", " << point.y << std::endl;
   }
-}
+} TODO check this*/
 
 void TmxLoader::parseLayerData(TileLayer *layer,
-  const rapidxml::xml_node<char> *dataNode)
+  const XmlNode *dataNode)
 {
   std::string dataStr(dataNode->value());
   std::vector<std::string> tileIdsVector;
@@ -391,18 +567,15 @@ void TmxLoader::parseLayerData(TileLayer *layer,
   int i = 0, j = 0;
   for (std::string &tileIdStr: tileIdsVector)
   {
-    layer->setTileId(i, j, utils::stdStringToInt(tileIdStr));
+    layer->setTileId(i, j, utils::stdStringToNumber<int>(tileIdStr));
     i++;
-    if (i == layer->getW())
-    {
-      i = 0; j++;
-    }
+    if (i == layer->getW()) { i = 0; j++; }
   }
 }
 
-void TmxLoader::parseLayers(Map *map, const rapidxml::xml_node<char> *mapNode)
+void TmxLoader::parseLayers(Map *map, const XmlNode *mapNode)
 {
-  rapidxml::xml_node<char> *innerNode = mapNode->first_node();
+  XmlNode *innerNode = mapNode->first_node();
   while (innerNode != nullptr)
   {
     if (strcmp(innerNode->name(), "layer") == 0)
@@ -413,12 +586,12 @@ void TmxLoader::parseLayers(Map *map, const rapidxml::xml_node<char> *mapNode)
   }
 }
 
-void TmxLoader::parseProperties(MapObject *mapObj, const rapidxml::xml_node<char> *objNode)
+void TmxLoader::parseProperties(MapObject *mapObj, const XmlNode *objNode)
 {
-  const rapidxml::xml_node<char> *propsNode = objNode->first_node("properties");
+  const XmlNode *propsNode = objNode->first_node("properties");
   if (propsNode == nullptr)
     return;
-  const rapidxml::xml_node<char> *propNode = propsNode->first_node("property");
+  const XmlNode *propNode = propsNode->first_node("property");
   while (propNode != nullptr)
   {
     mapObj->addProperty(

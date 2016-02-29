@@ -2,13 +2,12 @@
 
 #include "maincharacter.hpp"
 
-#include <animatableobjectt.hpp>
-
 #include <SFML/System/String.hpp>
+#include "../ibrengine/animatableobject.hpp"
 
 MainCharacter::MainCharacter(ibrengine::Object *mapObj):
   MortalObject(mapObj),
-  mAnimObj(dynamic_cast<ibrengine::AnimatableObjectt*>(mapObj))
+  mAnimObj(dynamic_cast<ibrengine::AnimatableObject*>(mapObj))
 {
 }
 
@@ -29,7 +28,6 @@ void MainCharacter::setState(State s)
     }
     case State::Beating:
     {
-      mAnimObj->setCurrentAnimation("anim_beat");
       break;
     }
   }

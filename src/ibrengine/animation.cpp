@@ -8,6 +8,10 @@
 namespace ibrengine
 {
 
+Animation::Animation()
+{
+}
+
 Animation::Animation(int id):
   mId(id)
 {
@@ -16,6 +20,11 @@ Animation::Animation(int id):
 int Animation::getId() const
 {
   return mId;
+}
+
+void Animation::setId(int id)
+{
+  mId = id;
 }
 
 int Animation::getCurrentTileId() const

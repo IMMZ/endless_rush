@@ -65,6 +65,7 @@ void LevelLoadingState::setMapFile(const sf::String &mapFilePath)
 std::unique_ptr<ibrengine::Map> LevelLoadingState::loadMap()
 {
   mLevelLoaded = false;
+  // TODO: Will 'toAnsiString()' work with russian paths?
   std::unique_ptr<ibrengine::Map> map(std::move(mTmxLoader.loadMap(mMapFile.toAnsiString())));
   mLevelLoaded = true;
   return map;

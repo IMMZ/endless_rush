@@ -2,9 +2,6 @@
 
 #include "utils.hpp"
 
-#include <sstream>
-#include <string>
-
 namespace ibrengine
 {
 
@@ -36,34 +33,6 @@ void splitString(const std::string &str, char splitChar, bool includeEmpty, std:
   result.push_back(token);
 }
 
-int stdStringToInt(const std::string &str)
-{
-  std::stringstream ss; int value;
-  ss << str; ss >> value;
-  return value;
-}
-
-std::string IntToStdString(int i)
-{
-  std::stringstream ss; std::string value;
-  ss << i; ss >> value;
-  return value;
-}
-
-float stdStringToFloat(const std::string &str)
-{
-  std::stringstream ss; float value;
-  ss << str; ss >> value;
-  return value;
-}
-
-std::string floatToStdString(float f)
-{
-  std::stringstream ss; std::string value;
-  ss << f; ss >> value;
-  return value;
-}
-
 sf::Color hexColorToSFMLColor(const std::string &hexColor)
 {
   std::stringstream ss;
@@ -75,6 +44,17 @@ sf::Color hexColorToSFMLColor(const std::string &hexColor)
   ss << std::hex << hexColor.substr(4, 2); ss >> b;
   ss.clear(); ss.str("");
   return sf::Color(r, g, b);
+}
+
+bool stringToBool(const sf::String &str)
+{
+  if (str == "Y" || str == "y"
+      || str == "Yes" || str == "yes"
+      || str == "1"
+      || str == "True" || str == "true")
+    return true;
+
+  return false;
 }
 
 } // namespace utils

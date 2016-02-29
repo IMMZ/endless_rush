@@ -13,7 +13,7 @@
 namespace ibrengine
 {
 
-class AnimatableObjectt;
+class AnimatableObject;
 
 }
 
@@ -36,7 +36,7 @@ public:
   void update();
 
 private:
-  ibrengine::AnimatableObjectt *mAnimObj = nullptr;
+  ibrengine::AnimatableObject *mAnimObj = nullptr;
   State mState = State::Staying;
 };
 

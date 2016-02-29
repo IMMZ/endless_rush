@@ -36,27 +36,27 @@ void GameWorld::handleInput(Input::Action act)
 {
   if (mMainCharacter == nullptr)
     return;
-  sf::Vector2i pos(mMainCharacter->getPosition());
+  ibrengine::PositionI pos(mMainCharacter->getPosition());
   switch (act)
   {
     case Input::Action::Right:
     {
-      pos.x += 2.0f;
+      pos.first += 2.0f;
       break;
     }
     case Input::Action::Left:
     {
-      pos.x -= 2.0f;
+      pos.first -= 2.0f;
       break;
     }
     case Input::Action::Up:
     {
-      pos.y -= 2.0f;
+      pos.second -= 2.0f;
       break;
     }
     case Input::Action::Down:
     {
-      pos.y += 2.0f;
+      pos.second += 2.0f;
       break;
     }
     case Input::Action::Fire:
@@ -86,6 +86,6 @@ void GameWorld::initMainCharacter(ibrengine::MapObject *mapObj)
   //mMainCharacter.reset(new MainCharacter(mapObj));
   mMainCharacter->setPosition(mapObj->getPosition());
   // Set health.
-  int health = ibrengine::utils::stdStringToInt(mapObj->getProperty("health"));
+  int health = ibrengine::utils::stdStringToNumber<int>(mapObj->getProperty("health"));
   mMainCharacter->setHealth(health);
 }

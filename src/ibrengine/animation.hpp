@@ -23,9 +23,11 @@ namespace ibrengine
 class Animation
 {
 public:
+  Animation();
   explicit Animation(int id);
 
   int getId() const;
+  void setId(int id);
   int getCurrentTileId() const;
   void addFrame(int tileId, int duration);
   int getFramesCount() const;

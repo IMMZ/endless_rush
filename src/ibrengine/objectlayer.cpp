@@ -1,13 +1,15 @@
 // license text
 
 #include "objectlayer.hpp"
-#include "testik.hpp"
+
+#include "animatableobject.hpp"
+#include "physicobject.hpp"
 
 namespace ibrengine
 {
 
 ObjectLayer::ObjectLayer(const std::string& name, int w, int h):
-  Layer(name, w, h)
+  Layer(name, Layer::Type::Object, w, h)
 {
 }
 
@@ -16,17 +18,17 @@ void ObjectLayer::addMapObject(const std::shared_ptr<MapObject> &mapObj)
   mDirectors.push_back(mapObj);
 }
 
-void ObjectLayer::addDrawableObject(DrawableObjectt *drawableObj)
+void ObjectLayer::addDrawableObject(DrawableObject *drawableObj)
 {
   mDrawableObjs.push_back(drawableObj);
 }
 
-void ObjectLayer::addPhysicalObject(PhysicalObjectt *physicalObj)
+void ObjectLayer::addPhysicalObject(PhysicObject *physicalObj)
 {
   mPhysicalObjs.push_back(physicalObj);
 }
 
-void ObjectLayer::addAnimatableObject(AnimatableObjectt *animatableObj)
+void ObjectLayer::addAnimatableObject(AnimatableObject *animatableObj)
 {
   mAnimatableObjs.push_back(animatableObj);
 }
@@ -38,9 +40,6 @@ int ObjectLayer::getObjectsCount(Object::Type objType) const
     case Object::Type::Drawable:   { return mDrawableObjs.size(); }
     case Object::Type::Physical:   { return mPhysicalObjs.size(); }
     case Object::Type::Animatable: { return mAnimatableObjs.size(); }
-    case Object::Type::Full:             { return mDrawableObjs.size()
-                                            + mPhysicalObjs.size()
-                                            + mAnimatableObjs.size(); }
     default: break; // TODO: warn about Unknown obj type.
   }
 }
@@ -52,10 +51,12 @@ int ObjectLayer::getTotalObjectsCount() const
 
 void ObjectLayer::update(const sf::Time &time)
 {
-  /*for (std::shared_ptr<ObjectDirector> &director: mDirectors)
-    director->update(time);*/
-  for (AnimatableObjectt *anim: mAnimatableObjs)
-    anim->update(time);
+  for (std::shared_ptr<MapObject> &mapObj: mDirectors)
+    mapObj->update(time);
+  /*for (AnimatableObject *anim: mAnimatableObjs)
+    anim->update(time);*/
+  /*for (PhysicObject *physObj: mPhysicalObjs)
+    physObj->update(time);*/
 }
 
 ObjectLayer::DrawableObjectIterator ObjectLayer::beginDrawableObjs()

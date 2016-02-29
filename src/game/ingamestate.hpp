@@ -8,6 +8,7 @@
 #include "gameworld.hpp"
 
 #include <maprenderer.hpp>
+#include <physicworld.hpp>
 
 #include <memory>
 
@@ -36,6 +37,7 @@ public:
 private:
   std::unique_ptr<ibrengine::MapRenderer> mRenderer;
   std::unique_ptr<GameWorld> mGameWorld;
+  std::unique_ptr<ibrengine::PhysicWorld> mPhysicWorld;
   ibrengine::Map *mMap = nullptr;
 
 };

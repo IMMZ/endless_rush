@@ -1,7 +1,8 @@
 // TODO: license text
 
 #include "object.hpp"
-#include "testik.hpp"
+
+#include "mapobject.hpp"
 
 namespace ibrengine
 {
@@ -16,22 +17,22 @@ Object::~Object()
 {
 }
 
-const sf::Vector2i& Object::getPosition() const
+const PositionI& Object::getPosition() const
 {
   return mPos;
 }
 
-void Object::setPosition(const sf::Vector2i &pos)
+void Object::setPosition(const PositionI &pos)
 {
   mPos = pos;
 }
 
-const sf::Vector2i& Object::getSize() const
+const PositionI& Object::getSize() const
 {
   return mSize;
 }
 
-void Object::setSize(const sf::Vector2i &size)
+void Object::setSize(const PositionI &size)
 {
   mSize = size;
 }
@@ -44,11 +45,6 @@ Object::Type Object::getType() const
 void Object::setChanged()
 {
   mDirector.objectChanged(*this);
-}
-
-void Object::update(const sf::Time &time)
-{
-  // Do nothing.
 }
 
 } // namespace ibrengine

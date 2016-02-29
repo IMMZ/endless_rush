@@ -6,7 +6,7 @@ namespace ibrengine
 {
 
 TileLayer::TileLayer(const std::string& name, int w, int h):
-  Layer(name, w, h)
+  Layer(name, Layer::Type::Tile, w, h)
 {
   mTileIds = new int*[this->getW()];
   for (int i = 0; i < this->getW(); ++i)

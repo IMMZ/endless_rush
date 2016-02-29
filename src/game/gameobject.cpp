@@ -9,12 +9,12 @@ GameObject::GameObject(ibrengine::Object *mapObj):
 {
 }
 
-const sf::Vector2i& GameObject::getPosition() const
+const ibrengine::PositionI& GameObject::getPosition() const
 {
   return mMapObj->getPosition();
 }
 
-void GameObject::setPosition(const sf::Vector2i& pos)
+void GameObject::setPosition(const ibrengine::PositionI& pos)
 {
   mMapObj->setPosition(pos);
 }

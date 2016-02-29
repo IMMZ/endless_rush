@@ -15,8 +15,10 @@ namespace internal
 {
 
 InGameState::InGameState():
-  mRenderer(nullptr)
+  mRenderer(nullptr),
+  mPhysicWorld(new ibrengine::PhysicWorld)
 {
+  this->setUsedSound("rush.ogg");
 }
 
 void InGameState::draw(sf::RenderTarget &target)
@@ -36,12 +38,14 @@ void InGameState::update(const sf::Time &time)
 {
   mGameWorld->update();
   mMap->update(time);
+  mPhysicWorld->update(time);
 }
 
 void InGameState::setMap(ibrengine::Map *map)
 {
   mMap = map;
   mGameWorld.reset(new GameWorld(mMap));
+  mPhysicWorld->initFromMap(*mMap);
 }
 
 } // namespace internal

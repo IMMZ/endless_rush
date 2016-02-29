@@ -43,7 +43,7 @@ private:
     mInGameState,
     mPauseState,
     mTitlesState;
-  GameState mState = GameState::Menu;
+  GameState mState = GameState::InGame;
   std::unique_ptr<ibrengine::Map> mCurrentMap = { nullptr };
 };
 

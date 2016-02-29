@@ -6,6 +6,7 @@
 #include "animation.hpp"
 #include "layer.hpp"
 #include "mapobject.hpp"
+#include "physicobject.hpp"
 #include "tileset.hpp"
 
 #include <map>
@@ -24,6 +25,8 @@ public:
   using TilesetConstIterator = std::vector<std::shared_ptr<Tileset>>::const_iterator;
   using LayerIterator = std::vector<std::shared_ptr<Layer>>::iterator;
   using LayerConstIterator = std::vector<std::shared_ptr<Layer>>::const_iterator;
+
+  using CollisionShapeMap = std::map<int /*tileId */, PhysicObject::ShapeGroup>;
 
   enum class Orientation
   {
@@ -64,15 +67,16 @@ public:
   const Layer* getLayerAt(int i) const;
   int getLayersCount() const;
 
-  // Animation funcs.
+  // Animation funcs. TODO: make only 2 funcs with template!
   void addAnimation(const std::shared_ptr<Animation> &anim);
   Animation* getAnimation(int animId);
 
-  // Collision objs funcs.
-  void addCollisionObject(int tileId, const std::shared_ptr<MapObject> &collisionObj);
-  MapObject* getCollisionObject(int tileId);
+  // Collision shape group funcs.
+  void addShapeGroup(int tileId, const PhysicObject::ShapeGroup &shapeGrp);
+  const PhysicObject::ShapeGroup& getShapeGroup(int tileId) const;
 
 private:
+  CollisionShapeMap mCollisionShapeGroups;
   std::vector<std::shared_ptr<Tileset>> mTilesets;
   std::vector<std::shared_ptr<Layer>> mLayers;
   std::map<int /* id */, std::shared_ptr<Animation>> mAnimations; // TODO: replace by unordered

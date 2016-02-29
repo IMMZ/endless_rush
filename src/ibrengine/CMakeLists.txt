@@ -6,9 +6,10 @@ find_package(SFML 2.1 COMPONENTS system window graphics)
 
 set(SRC
   animation.cpp
-  animatableobjectt.cpp
-  complexshape.cpp
-  drawableobjectt.cpp
+  animatableobject.cpp
+  box.cpp
+  circle.cpp
+  drawableobject.cpp
   exception.cpp
   layer.cpp
   map.cpp
@@ -17,7 +18,9 @@ set(SRC
   maprenderer.cpp
   object.cpp
   objectlayer.cpp
-  simpleshape.cpp
+  physicobject.cpp
+  physicworld.cpp
+  shape.cpp
   tilelayer.cpp
   tileset.cpp
   tmxloader.cpp
@@ -27,5 +30,6 @@ set(SRC
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "../../lib")
 include_directories("../rapidxml-1.13")
 include_directories(${SFML_INCLUDE_DIR}/SFML)
+include_directories(/opt/box2d/include)
 add_library(ibrengine STATIC ${SRC})
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})

@@ -4,7 +4,6 @@
 
 #include "map.hpp"
 #include "objectlayer.hpp"
-#include "testik.hpp"
 #include "tilelayer.hpp"
 
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -13,6 +12,7 @@
 #include <SFML/Graphics/Text.hpp> // todo remove
 
 #include <iostream> // TODO: remove
+#include "drawableobject.hpp"
 
 /*
  * TODO: Render objects.
@@ -40,25 +40,23 @@ void MapRenderer::renderMap(const Map *map)
   }
   for (Map::LayerConstIterator i = map->layersBegin(); i != map->layersEnd(); ++i)
   {
-    TileLayer *tLayer = dynamic_cast<TileLayer*>(i->get());
-    ObjectLayer *objLayer = dynamic_cast<ObjectLayer*>(i->get());
-    if (tLayer != nullptr && tLayer->isVisible())
-      this->renderTileLayer(tLayer);
-    else if (objLayer != nullptr && objLayer->isVisible())
-      this->renderObjectLayer(objLayer);
+    if (i->get()->getType() == Layer::Type::Tile && i->get()->isVisible())
+      this->renderTileLayer(static_cast<TileLayer*>(i->get()));
+    else if (i->get()->getType() == Layer::Type::Object && i->get()->isVisible())
+      this->renderObjectLayer(static_cast<ObjectLayer*>(i->get()));
   }
 }
 
-bool MapRenderer::isObjectInView(const DrawableObjectt &mapObj) const
+bool MapRenderer::isObjectInView(const DrawableObject &mapObj) const
 {
   const int screenW = mRenderTarget.getSize().x;
   const int screenH = mRenderTarget.getSize().y;
   const int screenX = mRenderTarget.getView().getCenter().x - screenW / 2;
   const int screenY = mRenderTarget.getView().getCenter().y - screenH / 2;
-  const int objW = mapObj.getSize().x;
-  const int objH = mapObj.getSize().y;
-  const int objOffsetX = mapObj.getPosition().x - screenX + objW;
-  const int objOffsetY = mapObj.getPosition().y - screenY + objH;
+  const int objW = mapObj.getSize().first;
+  const int objH = mapObj.getSize().second;
+  const int objOffsetX = mapObj.getPosition().first - screenX + objW;
+  const int objOffsetY = mapObj.getPosition().second - screenY + objH;
 
   if (objOffsetX < -10 || objOffsetX > (screenX + screenW + objW + 10))
     return false;
@@ -151,18 +149,17 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
 
 void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
 {
-  std::cout << "draws: " << layer->getObjectsCount(Object::Type::Drawable) << std::endl;
+  //std::cout << "draws: " << layer->getObjectsCount(Object::Type::Drawable) << std::endl;
   ObjectLayer::DrawableObjectCIterator i = layer->beginDrawableObjs();
   while (i != layer->endDrawableObjs())
   {
-    if (true/*mapObj->isVisible()*/)
+    if (true/*mapObj->isVisible()*/) // TODO: only visible!
     {
-      std::cout << "OBJECTOSIK" << std::endl;
       sf::Sprite *sprite = &this->getSprite((*i)->getTileId());
-      sprite->setPosition((*i)->getPosition().x, (*i)->getPosition().y - sprite->getLocalBounds().height);
-
+      sprite->setPosition((*i)->getPosition().first, (*i)->getPosition().second - sprite->getLocalBounds().height);
+      sprite->setRotation((*i)->getRotation());
       if (layer->getOpacity() < 1.0f)
-      {// TOOD; rotation
+      {
         sf::Color color = sprite->getColor();
         color.a = 255 * layer->getOpacity();
         sprite->setColor(color);

@@ -2,11 +2,12 @@
 
 #include "mapobject.hpp"
 
-#include "animatableobjectt.hpp"
-#include "drawableobjectt.hpp"
 #include "objectlayer.hpp"
-#include "testik.hpp" // physical obj
+#include "physicobject.hpp"
+#include <iostream> // TODO: remove
 
+#include "animatableobject.hpp"
+#include "drawableobject.hpp"
 namespace ibrengine
 {
 
@@ -19,14 +20,19 @@ void MapObject::setObject(Object *obj)
 {
   switch (obj->getType())
   {
-    case Object::Type::Drawable:
-    {
-      mDrawableObj.reset(dynamic_cast<DrawableObjectt*>(obj));
-      break;
-    }
     case Object::Type::Animatable:
     {
-      mAnimatableObj.reset(dynamic_cast<AnimatableObjectt*>(obj));
+      mAnimatableObj.reset(dynamic_cast<AnimatableObject*>(obj));
+      break;
+    }
+    case Object::Type::Drawable:
+    {
+      mDrawableObj.reset(dynamic_cast<DrawableObject*>(obj));
+      break;
+    }
+    case Object::Type::Physical:
+    {
+      mPhysicalObj.reset(dynamic_cast<PhysicObject*>(obj));
       break;
     }
   }
@@ -36,6 +42,11 @@ void MapObject::objectChanged(const Object &obj)
 {
   switch (obj.getType())
   {
+    case Object::Type::Animatable:
+    {
+      this->animatableObjectChanged(*mAnimatableObj);
+      break;
+    }
     case Object::Type::Drawable:
     {
       this->drawableObjectChanged(*mDrawableObj);
@@ -46,12 +57,6 @@ void MapObject::objectChanged(const Object &obj)
       this->physicalObjectChanged(*mPhysicalObj);
       break;
     }
-    case Object::Type::Animatable:
-    {
-      this->animatableObjectChanged(*mAnimatableObj);
-      break;
-    }
-    default: break; // TODO: warn about Unknown obj type.
   }
 }
 
@@ -75,12 +80,12 @@ void MapObject::setName(const sf::String& name)
   mName = name;
 }
 
-const sf::Vector2i& MapObject::getPosition() const
+const PositionI& MapObject::getPosition() const
 {
   return mPosition;
 }
 
-void MapObject::setPosition(const sf::Vector2i& pos)
+void MapObject::setPosition(const PositionI& pos)
 {
   mPosition = pos;
 }
@@ -171,28 +176,25 @@ void MapObject::update(const sf::Time &time)
     mAnimatableObj->update(time);
 }
 
-void MapObject::drawableObjectChanged(const DrawableObjectt &obj)
+void MapObject::drawableObjectChanged(const DrawableObject &obj)
 {// Do nothing?
 }
 
-void MapObject::physicalObjectChanged(const PhysicalObjectt &obj)
+void MapObject::physicalObjectChanged(const PhysicObject &obj)
 {
   if (mDrawableObj != nullptr)
   {
-    // set rotation and position for drawObject
+    mDrawableObj->setRotation(obj.getAngle());
+    mDrawableObj->setPosition(obj.getPosition());
   }
-  // set position for mMapObj
 }
 
-void MapObject::animatableObjectChanged(const AnimatableObjectt &obj)
+void MapObject::animatableObjectChanged(const AnimatableObject &obj)
 {
   if (mDrawableObj != nullptr)
-  {
     mDrawableObj->setTileId(obj.getCurrentTileId());
-  }
   if (mPhysicalObj != nullptr)
-  {// TODO: set new id for physical property
-  }
+    mPhysicalObj->setShapeGroup(obj.mMap->getShapeGroup(obj.getCurrentTileId()));
 }
 
 } // namespace ibrengine
