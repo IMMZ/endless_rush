@@ -5,6 +5,8 @@
 
 #include "global.hpp"
 
+#include <vector>
+
 namespace ibrengine
 {
 
@@ -14,11 +16,18 @@ namespace internal
 class Shape
 {
 public:
+  using PointIterator = std::vector<Point>::iterator;
+  using PointCIterator = std::vector<Point>::const_iterator;
+  using PointRIterator = std::vector<Point>::reverse_iterator;
+  using PointCRIterator = std::vector<Point>::const_reverse_iterator;
+
   enum class Type
   {
     Invalid,
     Box,
-    Circle
+    Circle,
+    Chain,
+    Polygon
   };
 
   Shape(Type type = Type::Invalid);

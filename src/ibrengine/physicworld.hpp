@@ -8,6 +8,8 @@
 #include <memory>
 #include <vector>
 
+#include "debugdraw.hpp"
+
 namespace sf
 {
   class Time;
@@ -22,16 +24,27 @@ class PhysicObject;
 class PhysicWorld
 {
 public:
-  PhysicWorld();
+  PhysicWorld(DebugDraw &ddraw);
   ~PhysicWorld();
 
   void update(const sf::Time &time);
 
   void initFromMap(const Map &map);
 
+  void setDebugDraw(DebugDraw *dd)
+  {
+    mWorld.SetDebugDraw(dd);
+  }
+
+  void draw()
+  {
+    mWorld.DrawDebugData();
+  }
+
 private:
-  static const int32 VelocityIterations = 10;
-  static const int32 PositionIterations = 10;
+  static constexpr int32 VelocityIterations = 10;
+  static constexpr int32 PositionIterations = 10;
+  static constexpr float PixelsPerUnit = 32.0f;
 
   void createBody(const PhysicObject &obj);
   void changePhysicObject(const b2Body &body, PhysicObject &physObj);

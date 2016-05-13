@@ -14,6 +14,7 @@ namespace ibrengine
 {
 
 // Types.
+using Point = std::pair<int, int>;
 using PositionI = std::pair<int, int>;
 using PositionF = std::pair<float, float>;
 using LinearVelocity = std::pair<float, float>;

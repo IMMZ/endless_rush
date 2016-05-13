@@ -15,6 +15,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include <debugdraw.hpp>
+
 const std::string Game::NAME = "Endless shit";
 const sf::Time Game::UPDATES_PER_SECOND = sf::seconds(1.0f / 60.0f);
 
@@ -40,7 +42,10 @@ void Game::init()
 void Game::start()
 {
   this->setState(mState);
+  ibrengine::DebugDraw dbgWindow;
   sf::RenderWindow window(Settings::instance().getVideoMode(), NAME);
+  dbgWindow.SetFlags(b2Draw::e_shapeBit /*+ b2Draw::e_aabbBit*/);
+  window.setVisible(true);
   sf::Music gameStateMusic;
   gameStateMusic.openFromFile(mCurrentState->getUsedSound());
   gameStateMusic.setVolume(80.0);
@@ -48,15 +53,16 @@ void Game::start()
   mIntroState.get()->setRenderTarget(&window);
   mMenuState.get()->setRenderTarget(&window);
   mInGameState.get()->setRenderTarget(&window);
+  mInGameState.get()->setDebugDraw(&dbgWindow);
   mLevelLoadingState.get()->setRenderTarget(&window);
   mPauseState.get()->setRenderTarget(&window);
 
   sf::Clock timer;
   sf::Time elapsedTime = sf::Time::Zero;
-  while (window.isOpen())
+  while (window.isOpen() && dbgWindow.isOpen())
   {
     sf::Event event;
-    while (window.pollEvent(event))
+    while (window.pollEvent(event) || dbgWindow.pollEvent(event))
     {
       switch (event.type)
       {
@@ -89,8 +95,10 @@ void Game::start()
       }
     }
     window.clear();
+    dbgWindow.clear();
     mCurrentState->draw(window);
     window.display();
+    dbgWindow.display();
   }
 }
 

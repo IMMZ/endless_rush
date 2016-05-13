@@ -3,11 +3,13 @@
 #include "tmxloader.hpp"
 
 #include "box.hpp"
+#include "chainshape.hpp"
 #include "circle.hpp"
 #include "global.hpp"
 #include "maploadexception.hpp"
 #include "objectlayer.hpp"
 #include "physicobject.hpp"
+#include "polygonshape.hpp"
 #include "tilelayer.hpp"
 #include "tileset.hpp"
 #include "utils.hpp"
@@ -66,35 +68,68 @@ void TmxLoader::parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNod
   const XmlAttribute* widthAttr = objectNode->first_attribute("width");
   const XmlAttribute* heightAttr = objectNode->first_attribute("height");
   const XmlAttribute* gidAttr = objectNode->first_attribute("gid");
-  const XmlNode* ellipseNode = objectNode->first_node("ellipse");
   const XmlAttribute *xAttr = objectNode->first_attribute("x");
   const XmlAttribute *yAttr = objectNode->first_attribute("y");
 
+  const XmlNode* ellipseNode = objectNode->first_node("ellipse");
+  const XmlNode* polylineNode = objectNode->first_node("polyline");
+  const XmlNode* polygonNode = objectNode->first_node("polygon");
+
   // TODO: add support for polygon, edge and chain.
+  std::shared_ptr<internal::Shape> shape;
   if (widthAttr != nullptr && heightAttr != nullptr) // Box/Circle.
   {
-    std::shared_ptr<internal::Shape> shape;
     if (ellipseNode != nullptr) // Circle.
     {
       if (strcmp(widthAttr->value(), heightAttr->value()) != 0)
         throw MapLoadException("The width and height of a circle are not equal.");
 
-      ::std::cout << "  Added a cricle to the shape group" << ::std::endl;
       shape = std::make_shared<internal::Circle>(utils::stdStringToNumber<float>(widthAttr->value()));
     }
-    else
+    else // Box
     {
-      ::std::cout << "  Added a box to the shape group" << ::std::endl;
       shape = std::make_shared<internal::Box>(
-        utils::stdStringToNumber<int>(widthAttr->value()),
-        utils::stdStringToNumber<int>(heightAttr->value()));
+          utils::stdStringToNumber<int>(widthAttr->value()),
+          utils::stdStringToNumber<int>(heightAttr->value()));
     }
-    shape->setPosition(
-      std::make_pair(
-        utils::stdStringToNumber<int>(xAttr->value()),
-        utils::stdStringToNumber<int>(yAttr->value())));
-    shapeGrp.push_back(shape);
   }
+  else if (polylineNode != nullptr) // Polyline
+  {
+    internal::ChainShape *chainShape = new internal::ChainShape;
+    shape.reset(chainShape);
+    std::vector<std::string> coordPairs;
+    std::string strToParse(polylineNode->first_attribute("points")->value());
+    utils::splitString(strToParse, ' ', false, coordPairs);
+    for (const std::string &coordPair: coordPairs)
+    {
+      // TODO: extract
+      std::vector<std::string> xy;
+      utils::splitString(coordPair, ',', false, xy);
+      Point p = std::make_pair(utils::stdStringToNumber<int>(xy[0]), utils::stdStringToNumber<int>(xy[1]));
+      chainShape->addPoint(p);
+    }
+  }
+  else if (polygonNode != nullptr) // Polygon
+  {
+    internal::PolygonShape *polyShape = new internal::PolygonShape;
+    shape.reset(polyShape);
+    std::vector<std::string> coordPairs;
+    std::string strToParse(polygonNode->first_attribute("points")->value());
+    utils::splitString(strToParse, ' ', false, coordPairs);
+    for (const std::string &coordPair: coordPairs)
+    {
+      std::vector<std::string> xy;
+      utils::splitString(coordPair, ',', false, xy);
+      Point p = std::make_pair(utils::stdStringToNumber<int>(xy[0]), utils::stdStringToNumber<int>(xy[1]));
+      polyShape->addPoint(p);
+    }
+  }
+
+    shape->setPosition(
+        std::make_pair(
+            utils::stdStringToNumber<int>(xAttr->value()),
+            utils::stdStringToNumber<int>(yAttr->value())));
+    shapeGrp.push_back(shape);
 }
 
 Map* TmxLoader::parseMap(const XmlNode *mapNode)
@@ -315,6 +350,71 @@ void TmxLoader::parseObjects(Map *map, ObjectLayer *layer, const XmlNode *layerN
   }
 }
 
+void TmxLoader::readProperties(const MapObject &mapObj, PhysicObject *physObj) const
+{
+  // At first finding out a type to create an object.
+  if (mapObj.hasProperty("bodyType"))
+  {
+    sf::String bodyTypeStr = mapObj.getProperty("bodyType");
+    if (bodyTypeStr == "kinematic")
+      physObj->setType(PhysicObject::Type::Kinematic);
+    else if (bodyTypeStr == "dynamic")
+      physObj->setType(PhysicObject::Type::Dynamic);
+  }
+
+  for (auto i = mapObj.propertiesBegin(); i != mapObj.propertiesEnd(); ++i)
+  {
+    if (i->first == "active")
+      physObj->setActive(utils::stringToBool(i->second));
+    else
+    if (i->first == "allowSleep")
+      physObj->setAllowSleep(utils::stringToBool(i->second));
+    else
+    if (i->first == "awake")
+      physObj->setAwake(utils::stringToBool(i->second));
+    else
+    if (i->first == "bullet")
+      physObj->setBullet(utils::stringToBool(i->second));
+    else
+    if (i->first == "fixedRotation")
+      physObj->setFixedRotation(utils::stringToBool(i->second));
+    else
+    if (i->first == "angle")
+      physObj->setAngle(utils::stdStringToNumber<float>(i->second));
+    else
+    if (i->first == "angularDamping")
+      physObj->setAngularDamping(utils::stdStringToNumber<float>(i->second));
+    else
+    if (i->first == "angularVelocity")
+      physObj->setAngularVelocity(utils::stdStringToNumber<float>(i->second));
+    else
+    if (i->first == "gravityScale")
+      physObj->setGravityScale(utils::stdStringToNumber<float>(i->second));
+    else
+    if (i->first == "linearDamping")
+      physObj->setLinearDamping(utils::stdStringToNumber<float>(i->second));
+    else
+    if (i->first == "linearVelocity")
+    {
+      LinearVelocity linVel;
+      utils::sfStringToVector2d<float>(i->second, linVel);
+      physObj->setLinearVelocity(linVel);
+    }
+    else
+    if (i->first == "density")
+      physObj->setDensity(utils::stdStringToNumber<float>(i->second));
+    else
+    if (i->first == "friction")
+      physObj->setFriction(utils::stdStringToNumber<float>(i->second));
+    else
+    if (i->first == "sensor")
+      physObj->setSensor(utils::stringToBool(i->second));
+    else
+    if (i->first == "restitution")
+      physObj->setRestitution(utils::stdStringToNumber<float>(i->second));
+  }
+}
+
 /* TODO: Maybe we can create the object from Object::Type flags?
  * 1) Create a flags from custom properties.
  * 2) Pass them to something 'this->createObjects(flags);'
@@ -322,7 +422,7 @@ void TmxLoader::parseObjects(Map *map, ObjectLayer *layer, const XmlNode *layerN
 void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode)
 {
   // All objects have name and position so we can parse them at first.
-  sf::String name, type; PositionI pos; bool visible = true;
+  sf::String name, type; bool visible = true;
   XmlAttribute *nameAttr = objNode->first_attribute("name");
   XmlAttribute *typeAttr = objNode->first_attribute("type");
   XmlAttribute *xAttr = objNode->first_attribute("x");
@@ -332,11 +432,10 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
   std::string std_name = name.toAnsiString();
   if (typeAttr != nullptr)
     type = typeAttr->value();
-  pos.first = utils::stdStringToNumber<int>(xAttr->value());
-  pos.second = utils::stdStringToNumber<int>(yAttr->value());
+  PositionI pos = std::make_pair(
+    utils::stdStringToNumber<int>(xAttr->value()),
+    utils::stdStringToNumber<int>(yAttr->value()));
 
-  XmlAttribute *wAttr = objNode->first_attribute("width");
-  XmlAttribute *hAttr = objNode->first_attribute("height"); // TODO: make const
   const XmlAttribute *gidAttr = objNode->first_attribute("gid");
   MapObject *mapObj = new MapObject(name);
   this->parseProperties(mapObj, objNode); // TODO: better to accept MapObject&?
@@ -350,6 +449,8 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
     utils::stringToBool(mapObj->getProperty("animatable")) :
     false;
 
+  const XmlAttribute *wAttr = objNode->first_attribute("width");
+  const XmlAttribute *hAttr = objNode->first_attribute("height");
   if (wAttr != nullptr && hAttr != nullptr) // Physical/DrawableObject
   {
     int w = utils::stdStringToNumber<int>(wAttr->value());
@@ -359,7 +460,6 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
     {
       // Create drawable part.
       int gid = utils::stdStringToNumber<int>(gidAttr->value());
-      ::std::cout << "Add drawable object: " << name.toAnsiString() << ::std::endl;
       DrawableObject *drawObj = new DrawableObject(*mapObj);
       drawObj->setTileId(gid);
       drawObj->setPosition(pos);
@@ -367,7 +467,6 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
 
       if (animatable)
       {
-        ::std::cout << "Add simple animation object: " << name.toAnsiString() << ::std::endl;
         AnimatableObject *animObj = new AnimatableObject(name, *mapObj, gid);
         animObj->mMap = map;
         for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
@@ -385,123 +484,33 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
       // Create physical part.
       if (physical)
       {
-        ::std::cout << "Add physical object: " << name.toAnsiString() << ::std::endl;
-        PhysicObject::Type objType = PhysicObject::Type::Static; // TODO: extract
-
-        // At first finding out a type to create an object.
-        if (mapObj->hasProperty("bodyType"))
-        {
-          sf::String bodyTypeStr = mapObj->getProperty("bodyType");
-          if (bodyTypeStr == "kinematic")
-            objType = PhysicObject::Type::Kinematic;
-          else if (bodyTypeStr == "dynamic")
-            objType = PhysicObject::Type::Dynamic;
-        }
-        PhysicObject *physObj = new PhysicObject(*mapObj, objType);
+        PhysicObject *physObj = new PhysicObject(*mapObj);
         physObj->setPosition(pos);
+        physObj->setSize(std::make_pair(w, h));
+        PhysicObject::ShapeGroup sg = map->getShapeGroup(gid);
         physObj->setShapeGroup(map->getShapeGroup(gid));
-
-        // Then treating other options.
-        for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
-        {
-          if (i->first == "active")
-            physObj->setActive(utils::stringToBool(i->second));
-          else if (i->first == "allowSleep")
-            physObj->setAllowSleep(utils::stringToBool(i->second));
-          else if (i->first == "awake")
-            physObj->setAwake(utils::stringToBool(i->second));
-          else if (i->first == "bullet")
-            physObj->setBullet(utils::stringToBool(i->second));
-          else if (i->first == "fixedRotation")
-            physObj->setFixedRotation(utils::stringToBool(i->second));
-          else if (i->first == "angle")
-            physObj->setAngle(utils::stdStringToNumber<float>(i->second));
-          else if (i->first == "angularDamping")
-            physObj->setAngularDamping(utils::stdStringToNumber<float>(i->second));
-          else if (i->first == "angularVelocity")
-            physObj->setAngularVelocity(utils::stdStringToNumber<float>(i->second));
-          else if (i->first == "gravityScale")
-            physObj->setGravityScale(utils::stdStringToNumber<float>(i->second));
-          else if (i->first == "linearDamping")
-            physObj->setLinearDamping(utils::stdStringToNumber<float>(i->second));
-          else if (i->first == "linearVelocity")
-          {
-            LinearVelocity linVel;
-            utils::sfStringToVector2d<float>(i->second, linVel);
-            physObj->setLinearVelocity(linVel);
-          }
-          else if (i->first == "density")
-            physObj->setDensity(utils::stdStringToNumber<float>(i->second));
-          else if (i->first == "friction")
-            physObj->setFriction(utils::stdStringToNumber<float>(i->second));
-          else if (i->first == "sensor")
-            physObj->setSensor(utils::stringToBool(i->second));
-          else if (i->first == "restitution")
-            physObj->setRestitution(utils::stdStringToNumber<float>(i->second));
-        }
+        readProperties(*mapObj, physObj);
       }
     }
-    else // PhysicalObject
+    else
     {
-      ::std::cout << "Added physical object: " << name.toAnsiString() << ::std::endl;
-      PhysicObject::Type objType = PhysicObject::Type::Static;
-
-      // At first finding out a type to create an object.
-      if (mapObj->hasProperty("bodyType"))
-      {
-        sf::String bodyTypeStr = mapObj->getProperty("bodyType");
-        if (bodyTypeStr == "kinematic")
-          objType = PhysicObject::Type::Kinematic;
-        else if (bodyTypeStr == "dynamic")
-          objType = PhysicObject::Type::Dynamic;
-      }
-      PhysicObject *physObj = new PhysicObject(*mapObj, objType);
+      PhysicObject *physObj = new PhysicObject(*mapObj);
       physObj->setPosition(pos);
       PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
       physObj->setShapeGroup(shapeGrp);
-
-      // Then treating other options.
-      for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
-      {
-        if (i->first == "active")
-          physObj->setActive(utils::stringToBool(i->second));
-        else if (i->first == "allowSleep")
-          physObj->setAllowSleep(utils::stringToBool(i->second));
-        else if (i->first == "awake")
-          physObj->setAwake(utils::stringToBool(i->second));
-        else if (i->first == "bullet")
-          physObj->setBullet(utils::stringToBool(i->second));
-        else if (i->first == "fixedRotation")
-          physObj->setFixedRotation(utils::stringToBool(i->second));
-        else if (i->first == "angle")
-          physObj->setAngle(utils::stdStringToNumber<float>(i->second));
-        else if (i->first == "angularDamping")
-          physObj->setAngularDamping(utils::stdStringToNumber<float>(i->second));
-        else if (i->first == "angularVelocity")
-          physObj->setAngularVelocity(utils::stdStringToNumber<float>(i->second));
-        else if (i->first == "gravityScale")
-          physObj->setGravityScale(utils::stdStringToNumber<float>(i->second));
-        else if (i->first == "linearDamping")
-          physObj->setLinearDamping(utils::stdStringToNumber<float>(i->second));
-        else if (i->first == "linearVelocity")
-        {
-          LinearVelocity linVel;
-          utils::sfStringToVector2d<float>(i->second, linVel);
-          physObj->setLinearVelocity(linVel);
-        }
-        else if (i->first == "density")
-          physObj->setDensity(utils::stdStringToNumber<float>(i->second));
-        else if (i->first == "friction")
-          physObj->setFriction(utils::stdStringToNumber<float>(i->second));
-        else if (i->first == "sensor")
-          physObj->setSensor(utils::stringToBool(i->second));
-        else if (i->first == "restitution")
-          physObj->setRestitution(utils::stdStringToNumber<float>(i->second));
-      }
+      readProperties(*mapObj, physObj);
     }
-    mapObj->addToLayer(*layer);
-    layer->addMapObject(std::shared_ptr<MapObject>(mapObj));
   }
+  else // PhysicalObject
+  {
+    PhysicObject *physObj = new PhysicObject(*mapObj);
+    physObj->setPosition(pos);
+    PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
+    physObj->setShapeGroup(shapeGrp);
+    readProperties(*mapObj, physObj);
+  }
+  mapObj->addToLayer(*layer);
+  layer->addMapObject(std::shared_ptr<MapObject>(mapObj));
 }
 
 std::unique_ptr<Animation>
@@ -537,28 +546,10 @@ void TmxLoader::parsePhysAnim(Map &map, int tileId, const XmlNode *objGroupNode)
   }
 }
 
-/*void TmxLoader::parsePoints(const XmlNode *polygonNode,
-  ComplexShape *shape)
-{
-  std::vector<std::string> coordPairs;
-  std::string strToParse(polygonNode->first_attribute("points")->value());
-  utils::splitString(strToParse, ' ', false, coordPairs);
-  for (const std::string &coordPair: coordPairs)
-  {
-    sf::Vector2i point;
-    std::vector<std::string> xy;
-    utils::splitString(coordPair, ',', false, xy);
-    point.x = utils::stdStringToInt(xy[0]);
-    point.y = utils::stdStringToInt(xy[1]);
-    shape->addPoint(point);
-    std::cout << "parsed point " << point.x << ", " << point.y << std::endl;
-  }
-} TODO check this*/
-
 void TmxLoader::parseLayerData(TileLayer *layer,
   const XmlNode *dataNode)
 {
-  std::string dataStr(dataNode->value());
+  const std::string dataStr(dataNode->value());
   std::vector<std::string> tileIdsVector;
   utils::splitString(dataStr, ',', false, tileIdsVector);
   if (tileIdsVector.size() != (layer->getH() * layer->getW()))
@@ -575,7 +566,7 @@ void TmxLoader::parseLayerData(TileLayer *layer,
 
 void TmxLoader::parseLayers(Map *map, const XmlNode *mapNode)
 {
-  XmlNode *innerNode = mapNode->first_node();
+  const XmlNode *innerNode = mapNode->first_node();
   while (innerNode != nullptr)
   {
     if (strcmp(innerNode->name(), "layer") == 0)

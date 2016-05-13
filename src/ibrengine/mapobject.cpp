@@ -8,6 +8,7 @@
 
 #include "animatableobject.hpp"
 #include "drawableobject.hpp"
+
 namespace ibrengine
 {
 

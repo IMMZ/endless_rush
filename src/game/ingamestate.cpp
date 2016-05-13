@@ -11,12 +11,15 @@
 
 #include <cassert>
 #include <iostream> // TODO; remove
+
+#include <debugdraw.hpp>
+
 namespace internal
 {
 
 InGameState::InGameState():
   mRenderer(nullptr),
-  mPhysicWorld(new ibrengine::PhysicWorld)
+  mPhysicWorld(new ibrengine::PhysicWorld(*(dynamic_cast<ibrengine::DebugDraw*>(getRenderTarget()))))
 {
   this->setUsedSound("rush.ogg");
 }
@@ -27,6 +30,7 @@ void InGameState::draw(sf::RenderTarget &target)
   if (mRenderer.get() == nullptr)
     mRenderer.reset(new ibrengine::MapRenderer(target));
   mRenderer->renderMap(mMap);
+  mPhysicWorld->draw();
 }
 
 void InGameState::handleInput(Input::Action act)

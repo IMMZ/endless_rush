@@ -6,6 +6,7 @@
 #include "object.hpp"
 #include "shape.hpp"
 
+#include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Common/b2Math.h>
 #include <Box2D/Common/b2Settings.h>
 
@@ -22,9 +23,9 @@ public:
 
   enum class Type
   {
-    Static,
-    Kinematic,
-    Dynamic
+    Static = b2_staticBody,
+    Kinematic = b2_kinematicBody,
+    Dynamic = b2_dynamicBody
   };
 
   explicit PhysicObject(MapObject &director, Type t = Type::Static);
@@ -71,11 +72,11 @@ private:
   ShapeGroup mShapeGroup;
   LinearVelocity mLinearVelocity;
   float32 mAngle = 0.0f, mAngularDamping = 0.0f, mAngularVelocity = 0.0f,
-    mDensity = 0.0f, mFriction = 0.0f, mGravityScale = 0.0f,
+    mDensity = 0.0f, mFriction = 0.0f, mGravityScale = 1.0f,
     mLinearDamping = 0.0f, mRestitution = 0.0f;
   bool mActive = true, mAllowSleep = true, mAwake = true, mBullet = false,
     mFixedRotation = false, mSensor = false;
-  Type mType;
+  Type mType = Type::Static;
 };
 
 } // namespace ibrengine

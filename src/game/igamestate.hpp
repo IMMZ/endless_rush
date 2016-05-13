@@ -8,6 +8,9 @@
 
 #include <SFML/System/String.hpp>
 
+
+#include <debugdraw.hpp>
+
 namespace sf
 {
 
@@ -33,6 +36,7 @@ public:
   sf::RenderTarget* getRenderTarget() { return mRenderTarget; }
   void setRenderTarget(sf::RenderTarget *target) { mRenderTarget = target; }
   const sf::String& getUsedSound() const { return mUsedSound; }
+  virtual void setDebugDraw(::ibrengine::DebugDraw *dd) {}
 
 protected:
   void setUsedSound(const sf::String &usedSound) { mUsedSound = usedSound; }

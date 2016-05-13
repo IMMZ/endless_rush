@@ -3,8 +3,6 @@
 #include "mapobject.hpp"
 #include "physicobject.hpp"
 
-#include <Box2D/Dynamics/b2Body.h>
-
 namespace ibrengine
 {
 
@@ -12,6 +10,8 @@ PhysicObject::PhysicObject(MapObject &director, Type type):
   Object(director, Object::Type::Physical),
   mType(type)
 {
+  //if (mType == Type::Dynamic)
+    mDensity = 1.0f;
   director.setObject(this);
 }
 

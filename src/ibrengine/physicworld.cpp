@@ -3,14 +3,17 @@
 #include "physicworld.hpp"
 
 #include "box.hpp"
+#include "chainshape.hpp"
 #include "circle.hpp"
 #include "global.hpp"
 #include "map.hpp"
 #include "objectlayer.hpp"
 #include "physicobject.hpp"
+#include "polygonshape.hpp"
 
 #include <SFML/System/Time.hpp>
 
+#include <Box2D/Collision/Shapes/b2ChainShape.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Dynamics/b2Body.h>
@@ -18,6 +21,9 @@
 #include <Box2D/Dynamics/Contacts/b2Contact.h>
 
 #include <iostream> // TODO: remove
+#include <memory>
+
+#include<Box2D/Box2D.h>
 
 namespace ibrengine
 {
@@ -40,8 +46,8 @@ public:
   }
 };
 
-PhysicWorld::PhysicWorld():
-  mWorld(b2Vec2(0.0f,-9.8f)),
+PhysicWorld::PhysicWorld(DebugDraw &dDraw):
+  mWorld(b2Vec2(0.0f, 9.8f)),
   mContactListener(new CollisionDetector)
 {
   mWorld.SetContactListener(mContactListener.get());
@@ -63,16 +69,10 @@ void PhysicWorld::update(const sf::Time& time)
     if (physObj != nullptr)
       changePhysicObject(*body, *physObj);
   }
-  if (ball != nullptr)
-    ::std::cout << "obj pos is: " << ball->GetPosition().x << ", " << ball->GetPosition().y << ::std::endl;
 }
 
 void PhysicWorld::initFromMap(const Map &map)
 {
-  b2AABB worldSize;
-  worldSize.lowerBound.Set(0.0f, 0.0f);
-  worldSize.upperBound.Set(map.getW(), map.getH());
-
   for (auto i = map.layersBegin(); i != map.layersEnd(); ++i)
   {
     if (i->get()->getType() == Layer::Type::Object)
@@ -86,14 +86,8 @@ void PhysicWorld::initFromMap(const Map &map)
 
 void PhysicWorld::createBody(const PhysicObject &obj)
 {
-  ::std::cout << "BODY CREATED" << ::std::endl;
   b2BodyDef bodyDef;
   bodyDef.type = static_cast<b2BodyType>(obj.getType());
-  if (bodyDef.type == b2_staticBody)
-    ::std::cout << "STATTIC";
-  else if (bodyDef.type == b2_dynamicBody)
-    ::std::cout << "DYNNAMIC";
-  ::std::cout << ::std::endl;
   bodyDef.active = obj.isActive();
   bodyDef.allowSleep = obj.isAllowSleep();
   bodyDef.angle = obj.getAngle() / 57.2958f;
@@ -104,49 +98,80 @@ void PhysicWorld::createBody(const PhysicObject &obj)
   bodyDef.fixedRotation = obj.isFixedRotation();
   bodyDef.gravityScale = obj.getGravityScale();
   bodyDef.linearDamping = obj.getLinearDamping();
-  ::std::cout << "LIN VEL: " << obj.getLinearVelocity().first << ", " << obj.getLinearVelocity().second << ::std::endl;
   bodyDef.linearVelocity.Set(obj.getLinearVelocity().first, obj.getLinearVelocity().second);
-  bodyDef.position.Set(obj.getPosition().first / 32.0f, obj.getPosition().second / 32.0f);
-  ::std::cout << "obj pos is: " << obj.getPosition().first << ", " << obj.getPosition().second << ::std::endl;
-  ::std::cout << "body pos is: " << bodyDef.position.x << ", " << bodyDef.position.y << ::std::endl << ::std::endl;
+  bodyDef.position.Set(
+    obj.getPosition().first / PixelsPerUnit,
+    (obj.getPosition().second - obj.getSize().second) / PixelsPerUnit);
   b2Body *newBody = mWorld.CreateBody(&bodyDef);
 
   // For all shapes we create the fixtures.
   for (const std::shared_ptr<internal::Shape> &shape: obj.getShapeGroup())
   {
+    if (!shape->isValid())
+      continue;
+
     b2FixtureDef fixtureDef;
     fixtureDef.density = obj.getDensity();
-    ::std::cout << "Density = " << fixtureDef.density << ::std::endl;
     fixtureDef.friction = obj.getFriction();
     fixtureDef.isSensor = obj.isSensor();
     fixtureDef.restitution = obj.getRestitution();
 
     b2Shape *newShape = nullptr;
-    ::std::cout << "SHAPE TYPE IS: " << static_cast<int>(shape->getType()) << ::std::endl;
-    if (shape->isValid() && shape->getType() == internal::Shape::Type::Box)
+    if (shape->getType() == internal::Shape::Type::Box)
     {
-      ::std::cout << "BOX SHAPE ATTACHED" << ::std::endl;
       const internal::Box *box = dynamic_cast<const internal::Box*>(shape.get());
       b2PolygonShape *polygonShape = new b2PolygonShape;
-      polygonShape->SetAsBox(box->getWidth() / 2.0f / 32.0f, box->getHeight() / 2.0f / 32.0f);
+      b2Vec2 vertices[4] =
+      {
+          b2Vec2(0.0f, 0.0f),
+          b2Vec2(box->getWidth() / PixelsPerUnit, 0.0f),
+          b2Vec2(box->getWidth() / PixelsPerUnit, box->getHeight() / PixelsPerUnit),
+          b2Vec2(0.0f, box->getHeight() / PixelsPerUnit)
+      };
+      polygonShape->Set(vertices, 4);
       newShape = polygonShape;
     }
-    else if (shape->isValid() && shape->getType() == internal::Shape::Type::Circle)
+    else if (shape->getType() == internal::Shape::Type::Circle)
     {
-      ::std::cout << "CIRCLE SHAPE ATTACHED" << ::std::endl;
       const internal::Circle *circle = dynamic_cast<const internal::Circle*>(shape.get());
       b2CircleShape *circleShape = new b2CircleShape;
-      circleShape->m_radius = circle->getRadius() / 32.0f;
-      ::std::cout <<" Circle radius = " << circleShape->m_radius << ::std::endl;
+      circleShape->m_radius = circle->getRadius() / PixelsPerUnit;
+      bodyDef.position += b2Vec2(circleShape->m_radius, circleShape->m_radius);
+      mWorld.DestroyBody(newBody);
+      newBody = mWorld.CreateBody(&bodyDef);
       newShape = circleShape;
-      ball = newBody;
-      ::std::cout << ">>>>Object pos is " << ball->GetPosition().x << ", " << ball->GetPosition().y << ::std::endl;
+    }
+    else if (shape->getType() == internal::Shape::Type::Chain)
+    {
+      const internal::ChainShape *chain = dynamic_cast<const internal::ChainShape*>(shape.get());
+      size_t pointsCount = chain->getPointsCount();
+      std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[pointsCount]);
+      for (size_t i = 0; i < pointsCount; ++i)
+        vertices[i].Set(chain->getPoint(i).first / PixelsPerUnit, chain->getPoint(i).second / PixelsPerUnit);
+
+      b2ChainShape *chainShape = new b2ChainShape;
+      chainShape->CreateChain(vertices.get(), pointsCount);
+      newShape = chainShape;
+    }
+    else if (shape->getType() == internal::Shape::Type::Polygon)
+    {
+      const internal::PolygonShape *polyShape = dynamic_cast<const internal::PolygonShape*>(shape.get());
+      b2PolygonShape *polygonShape = new b2PolygonShape;
+      std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[polyShape->getPointsCount()]);
+      auto i = polyShape->beginPoints();
+      while (i != polyShape->endPoints())
+      {
+        vertices[i - polyShape->beginPoints()] = b2Vec2(i->first / PixelsPerUnit, i->second / PixelsPerUnit);
+        ++i;
+      }
+      polygonShape->Set(vertices.get(), polyShape->getPointsCount());
+      newShape = polygonShape;
     }
 
     if (newShape != nullptr)
     {
       fixtureDef.shape = newShape;
-      b2Fixture *newFixture = newBody->CreateFixture(&fixtureDef); // TODO: Destroy on removal.
+      b2Fixture *newFixture = newBody->CreateFixture(&fixtureDef); // TODO: Destroy on removal?
     }
     delete newShape;
   }
@@ -161,15 +186,14 @@ void PhysicWorld::changePhysicObject(const b2Body &body, PhysicObject &physObj)
   physObj.setAngle(body.GetAngle() * 57.2958f);
   physObj.setAngularDamping(body.GetAngularDamping());
   physObj.setAngularVelocity(body.GetAngularVelocity());
+  physObj.setAllowSleep(body.IsSleepingAllowed());
   physObj.setAwake(body.IsAwake());
   physObj.setBullet(body.IsBullet());
   physObj.setFixedRotation(body.IsFixedRotation());
   physObj.setGravityScale(body.GetGravityScale());
   physObj.setLinearDamping(body.GetLinearDamping());
-  // TODO: linear velocity.
   physObj.setLinearVelocity(LinearVelocity(body.GetLinearVelocity().x, body.GetLinearVelocity().y));
-  physObj.setPosition(std::make_pair(body.GetPosition().x * 32.0f, body.GetPosition().y * 32.0f));
-  body.GetFixtureList();
+  physObj.setPosition(std::make_pair(body.GetPosition().x * PixelsPerUnit, body.GetPosition().y * PixelsPerUnit));
   physObj.setChanged();
 }
 

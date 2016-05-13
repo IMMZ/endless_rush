@@ -33,6 +33,10 @@ public:
   void update(const sf::Time &time) override;
 
   void setMap(ibrengine::Map *map);
+  void setDebugDraw(::ibrengine::DebugDraw *dd) override
+  {
+    mPhysicWorld->setDebugDraw(dd);
+  }
 
 private:
   std::unique_ptr<ibrengine::MapRenderer> mRenderer;

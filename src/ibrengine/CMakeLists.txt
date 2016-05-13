@@ -8,7 +8,9 @@ set(SRC
   animation.cpp
   animatableobject.cpp
   box.cpp
+  chainshape.cpp
   circle.cpp
+  debugdraw.cpp
   drawableobject.cpp
   exception.cpp
   layer.cpp
@@ -20,6 +22,7 @@ set(SRC
   objectlayer.cpp
   physicobject.cpp
   physicworld.cpp
+  polygonshape.cpp
   shape.cpp
   tilelayer.cpp
   tileset.cpp

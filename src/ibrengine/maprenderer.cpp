@@ -140,7 +140,7 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
           sprite.setColor(color);
         }
 
-        sprite.setPosition(x * mMap->getTileW(), y * mMap->getTileH() - sprite.getLocalBounds().height);
+        sprite.setPosition(x * mMap->getTileW(), y * mMap->getTileH());
         mRenderTarget.draw(sprite);
       }
     }
@@ -149,14 +149,13 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
 
 void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
 {
-  //std::cout << "draws: " << layer->getObjectsCount(Object::Type::Drawable) << std::endl;
   ObjectLayer::DrawableObjectCIterator i = layer->beginDrawableObjs();
   while (i != layer->endDrawableObjs())
   {
     if (true/*mapObj->isVisible()*/) // TODO: only visible!
     {
       sf::Sprite *sprite = &this->getSprite((*i)->getTileId());
-      sprite->setPosition((*i)->getPosition().first, (*i)->getPosition().second - sprite->getLocalBounds().height);
+      sprite->setPosition((*i)->getPosition().first, (*i)->getPosition().second);
       sprite->setRotation((*i)->getRotation());
       if (layer->getOpacity() < 1.0f)
       {

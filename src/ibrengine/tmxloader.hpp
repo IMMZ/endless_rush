@@ -45,6 +45,7 @@ private:
   void parseLayerData(TileLayer *layer, const XmlNode *dataNode);
   void parseLayers(Map *map, const XmlNode *mapNode);
   void parseProperties(MapObject *mapObj, const XmlNode *objNode);
+  void readProperties(const MapObject &mapObj, PhysicObject* physObj) const;
 
   std::unique_ptr<rapidxml::xml_document<char>> mXmlDoc;
   std::unique_ptr<char[]> mFileBytes; // The bytes should exist while parsing.
