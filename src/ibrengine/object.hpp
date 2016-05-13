@@ -40,9 +40,6 @@ public:
   void setSize(const PositionI &size);
   Type getType() const;
   void setChanged();
-  bool isDrawable() const;
-  bool isAnimatable() const;
-  bool isPhysical() const;
 
   virtual void update(const sf::Time &time) = 0;
 

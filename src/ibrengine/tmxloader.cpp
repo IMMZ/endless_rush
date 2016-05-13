@@ -423,10 +423,10 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
 {
   // All objects have name and position so we can parse them at first.
   sf::String name, type;
-  XmlAttribute *nameAttr = objNode->first_attribute("name");
-  XmlAttribute *typeAttr = objNode->first_attribute("type");
-  XmlAttribute *xAttr = objNode->first_attribute("x");
-  XmlAttribute *yAttr = objNode->first_attribute("y");
+  const XmlAttribute *nameAttr = objNode->first_attribute("name");
+  const XmlAttribute *typeAttr = objNode->first_attribute("type");
+  const XmlAttribute *xAttr = objNode->first_attribute("x");
+  const XmlAttribute *yAttr = objNode->first_attribute("y");
   if (nameAttr != nullptr)
     name = nameAttr->value();
   std::string std_name = name.toAnsiString();
@@ -470,7 +470,14 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
       int gid = utils::stdStringToNumber<int>(gidAttr->value());
       DrawableObject *drawObj = new DrawableObject(*mapObj);
       drawObj->setTileId(gid);
-      drawObj->setPosition(pos);
+
+      /*
+       * Tiled map editor uses bottom-left point as the base point,
+       * when SFML draws based on top-left one. It means that we
+       * should subtract the height of the object for all drawable objects.
+       */
+      PositionI newPos(pos); newPos.second -= h;
+      drawObj->setPosition(newPos);
       drawObj->setSize(std::make_pair(w, h));
 
       if (animatable)
