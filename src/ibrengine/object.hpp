@@ -46,6 +46,9 @@ public:
 
   virtual void update(const sf::Time &time) = 0;
 
+protected:
+  const MapObject& getMapObject() const;
+
 private:
   PositionI mPos, mSize;
   MapObject &mDirector;

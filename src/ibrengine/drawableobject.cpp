@@ -33,6 +33,11 @@ void DrawableObject::setRotation(float rotation)
   mRotation = rotation;
 }
 
+bool DrawableObject::isVisible() const
+{
+  return getMapObject().isVisible();
+}
+
 void DrawableObject::update(const sf::Time &time)
 {
 }

@@ -17,6 +17,7 @@ public:
   void setTileId(int tileId);
   float getRotation() const;
   void setRotation(float rotation);
+  bool isVisible() const;
 
   // Object.
   void update(const sf::Time &time) override;

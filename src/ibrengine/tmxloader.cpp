@@ -422,7 +422,7 @@ void TmxLoader::readProperties(const MapObject &mapObj, PhysicObject *physObj) c
 void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode)
 {
   // All objects have name and position so we can parse them at first.
-  sf::String name, type; bool visible = true;
+  sf::String name, type;
   XmlAttribute *nameAttr = objNode->first_attribute("name");
   XmlAttribute *typeAttr = objNode->first_attribute("type");
   XmlAttribute *xAttr = objNode->first_attribute("x");
@@ -432,12 +432,20 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
   std::string std_name = name.toAnsiString();
   if (typeAttr != nullptr)
     type = typeAttr->value();
+
+  // Setting visibility.
+  bool visible = true;
+  const XmlAttribute *visibleAttr = objNode->first_attribute("visible");
+  if (visibleAttr != nullptr && utils::stdStringToNumber<int>(visibleAttr->value()) == 0)
+    visible = false;
+
   PositionI pos = std::make_pair(
     utils::stdStringToNumber<int>(xAttr->value()),
     utils::stdStringToNumber<int>(yAttr->value()));
 
   const XmlAttribute *gidAttr = objNode->first_attribute("gid");
   MapObject *mapObj = new MapObject(name);
+  mapObj->setVisible(visible);
   this->parseProperties(mapObj, objNode); // TODO: better to accept MapObject&?
 
   // Getting the type of the object.

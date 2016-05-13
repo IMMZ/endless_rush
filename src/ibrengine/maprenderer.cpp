@@ -152,7 +152,7 @@ void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
   ObjectLayer::DrawableObjectCIterator i = layer->beginDrawableObjs();
   while (i != layer->endDrawableObjs())
   {
-    if (true/*mapObj->isVisible()*/) // TODO: only visible!
+    if ((*i)->isVisible())
     {
       sf::Sprite *sprite = &this->getSprite((*i)->getTileId());
       sprite->setPosition((*i)->getPosition().first, (*i)->getPosition().second);

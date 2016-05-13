@@ -47,4 +47,9 @@ void Object::setChanged()
   mDirector.objectChanged(*this);
 }
 
+const MapObject& Object::getMapObject() const
+{
+  return mDirector;
+}
+
 } // namespace ibrengine
