@@ -82,7 +82,7 @@ void Game::start()
     while (elapsedTime > UPDATES_PER_SECOND)
     {
       elapsedTime -= UPDATES_PER_SECOND;
-      mCurrentState->update(UPDATES_PER_SECOND);
+      mCurrentState->update(UPDATES_PER_SECOND * mSpeed);
       if (mCurrentState->isStateChangeRequested())
       {
         this->setState(mCurrentState->requestedState());
@@ -115,6 +115,21 @@ void Game::free()
 GameState Game::getState() const
 {
   return mState;
+}
+
+float Game::getSpeed() const
+{
+  return mSpeed;
+}
+
+void Game::setSpeed(float speed)
+{
+  if (speed < 0.0f)
+    mSpeed = 0.0f;
+  else if (speed > 1.0f)
+    mSpeed = 1.0f;
+  else
+    mSpeed = speed;
 }
 
 void Game::setState(GameState state)

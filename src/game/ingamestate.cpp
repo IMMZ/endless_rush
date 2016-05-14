@@ -35,6 +35,10 @@ void InGameState::draw(sf::RenderTarget &target)
 
 void InGameState::handleInput(Input::Action act)
 {
+  if (act == Input::Action::Down)
+    Game::instance().setSpeed(0.5f);
+  else if (act == Input::Action::Up)
+    Game::instance().setSpeed(1.0f);
   mGameWorld->handleInput(act);
 }
 

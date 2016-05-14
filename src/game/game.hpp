@@ -23,6 +23,8 @@ public:
 
   GameState getState() const;
   void setState(GameState state);
+  float getSpeed() const;
+  void setSpeed(float speed);
 
 private:
   static const std::string NAME;
@@ -45,6 +47,7 @@ private:
     mTitlesState;
   GameState mState = GameState::InGame;
   std::unique_ptr<ibrengine::Map> mCurrentMap = { nullptr };
+  float mSpeed = 1.0f;
 };
 
 #endif // GAME_HPP
