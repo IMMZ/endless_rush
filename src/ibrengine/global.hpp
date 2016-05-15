@@ -5,10 +5,16 @@
 
 #include <memory>
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 // Macroses.
-#define DISABLE_COPY(Class) \
-  Class(const Class &obj) = delete;\
-  Class& operator=(const Class &obj) = delete;
+/////////////////////////////////////////////////////////////////////////////////////////////
+#define DISABLE_COPY(ClassName)\
+  ClassName(const ClassName &obj) = delete;\
+  ClassName& operator=(const ClassName &obj) = delete;
+
+#define DISABLE_MOVE(ClassName)\
+  ClassName(ClassName &&obj) = delete;\
+  ClassName& operator=(ClassName &&obj) = delete;
 
 namespace ibrengine
 {

@@ -7,6 +7,7 @@ find_package(SFML 2.1 COMPONENTS system window graphics)
 set(SRC
   animation.cpp
   animatableobject.cpp
+  audiomanager.cpp
   box.cpp
   chainshape.cpp
   circle.cpp
