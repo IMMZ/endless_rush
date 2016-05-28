@@ -121,9 +121,12 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
   const int currentY = mRenderTarget.getView().getCenter().y - windowH / 2;
   const int xTileFrom = currentX / mMap->getTileW();
   const int yTileFrom = currentY / mMap->getTileH();
-  const int xTileTo = xTileFrom + windowW / mMap->getTileW();
-  const int yTileTo = yTileFrom + windowH / mMap->getTileH();
-
+  int xTileTo = xTileFrom + windowW / mMap->getTileW();
+  if (xTileTo >= mMap->getW())
+    xTileTo = mMap->getW() - 1;
+  int yTileTo = yTileFrom + windowH / mMap->getTileH();
+  if (yTileTo >= mMap->getH())
+    yTileTo = mMap->getH() - 1;
   for (int y = yTileFrom; y <= yTileTo; ++y)
   {
     for (int x = xTileFrom; x <= xTileTo; ++x)
