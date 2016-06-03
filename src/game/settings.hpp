@@ -5,6 +5,8 @@
 
 #include "input.hpp"
 
+#include <global.hpp>
+
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
 
@@ -20,10 +22,10 @@ public:
   void setVideoMode(const sf::VideoMode &size);
 
 private:
-  Settings() {};
-  Settings(const Settings &other);
-  Settings(const Settings &&other);
-  Settings& operator=(const Settings &other);
+  DISABLE_COPY(Settings);
+  DISABLE_MOVE(Settings);
+ 
+  Settings() = default;
 
   std::map<sf::Keyboard::Key, Input::Action> mActions;
   sf::VideoMode mVideoMode;

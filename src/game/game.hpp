@@ -5,6 +5,7 @@
 
 #include "igamestate.hpp"
 
+#include <global.hpp>
 #include <map.hpp>
 
 #include <SFML/System/Time.hpp>
@@ -27,13 +28,13 @@ public:
   void setSpeed(float speed);
 
 private:
+  DISABLE_COPY(Game);
+  DISABLE_MOVE(Game);
+
   static const std::string NAME;
   static const sf::Time UPDATES_PER_SECOND;
 
-  Game() {};
-  Game(const Game &other);
-  Game(const Game &&other);
-  Game operator=(const Game &other);
+  Game() = default;
 
   internal::IGameState *mCurrentState = nullptr;
   std::unique_ptr<internal::IGameState>

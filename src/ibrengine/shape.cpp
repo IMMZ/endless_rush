@@ -13,10 +13,6 @@ Shape::Shape(Type type):
 {
 }
 
-Shape::~Shape()
-{
-}
-
 Shape::Type Shape::getType() const
 {
   return mType;

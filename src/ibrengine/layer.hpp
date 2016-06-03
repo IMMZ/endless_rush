@@ -19,7 +19,7 @@ public:
   };
 
   Layer(const std::string &name, Type type, int w, int h);
-  virtual ~Layer();
+  virtual ~Layer() = default;
 
   const std::string &getName() const;
 

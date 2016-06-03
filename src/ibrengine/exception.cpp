@@ -10,10 +10,6 @@ Exception::Exception(const std::string &what):
 {
 }
 
-Exception::~Exception()
-{
-}
-
 const std::string& Exception::what() const
 {
   return mWhat;

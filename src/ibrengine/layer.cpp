@@ -12,10 +12,6 @@ Layer::Layer(const std::string &name, Type type, int w, int h):
 {
 }
 
-Layer::~Layer()
-{
-}
-
 const std::string& Layer::getName() const
 {
   return mName;

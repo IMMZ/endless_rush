@@ -13,10 +13,6 @@ Object::Object(MapObject &director, Type type):
 {
 }
 
-Object::~Object()
-{
-}
-
 const PositionI& Object::getPosition() const
 {
   return mPos;

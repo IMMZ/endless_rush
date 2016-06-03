@@ -31,7 +31,7 @@ public:
   };
 
   Shape(Type type = Type::Invalid);
-  virtual ~Shape();
+  virtual ~Shape() = default;
 
   Type getType() const;
   bool isValid() const;

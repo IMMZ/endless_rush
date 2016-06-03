@@ -4,6 +4,7 @@
 #define GAMERESOURCES_HPP
 
 #include <animation.hpp>
+#include <global.hpp>
 
 #include <map>
 #include <memory>
@@ -14,12 +15,11 @@ public:
   static GameResources& instance();
   void load();
 
-
 private:
-  GameResources() {}
-  GameResources(const GameResources &gr);
-  GameResources(const GameResources &&gr);
-  GameResources& operator=(const GameResources &gr);
+  DISABLE_COPY(GameResources);
+  DISABLE_MOVE(GameResources);
+
+  GameResources() = default;
 };
 
 #endif // GAMERESOURCES_HPP

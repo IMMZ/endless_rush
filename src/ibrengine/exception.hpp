@@ -12,7 +12,7 @@ class Exception
 {
 public:
   explicit Exception(const std::string &what);
-  virtual ~Exception();
+  virtual ~Exception() = default;
 
   const std::string& what() const;
 

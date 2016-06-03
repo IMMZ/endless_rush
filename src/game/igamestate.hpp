@@ -25,7 +25,7 @@ namespace internal
 class IGameState
 {
 public:
-  virtual ~IGameState() {};
+  virtual ~IGameState() = default;
 
   virtual void draw(sf::RenderTarget &target) = 0; // TODO: remove rendertarget parameter - use getRenderTarget() instead
   virtual void handleInput(Input::Action act) = 0;

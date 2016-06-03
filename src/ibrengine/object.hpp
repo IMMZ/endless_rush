@@ -32,7 +32,7 @@ public:
   };
 
   Object(MapObject &director, Type type);
-  virtual ~Object();
+  virtual ~Object() = default;
 
   const PositionI& getPosition() const;
   void setPosition(const PositionI &pos);
