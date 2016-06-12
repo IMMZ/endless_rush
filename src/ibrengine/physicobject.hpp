@@ -28,7 +28,7 @@ public:
     Dynamic = b2_dynamicBody
   };
 
-  explicit PhysicObject(MapObject &director, Type t = Type::Static);
+  explicit PhysicObject(const MapUnitPtr &director, Type t = Type::Static);
 
   bool isActive() const;
   void setActive(bool active);
@@ -78,6 +78,8 @@ private:
     mFixedRotation = false, mSensor = false;
   Type mType = Type::Static;
 };
+
+using PhysicalObjectScopedPtr = std::unique_ptr<PhysicObject>;
 
 } // namespace ibrengine
 

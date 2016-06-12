@@ -6,13 +6,13 @@
 namespace ibrengine
 {
 
-PhysicObject::PhysicObject(MapObject &director, Type type):
+PhysicObject::PhysicObject(const MapUnitPtr &director, Type type):
   Object(director, Object::Type::Physical),
   mType(type)
 {
   //if (mType == Type::Dynamic)
-    mDensity = 1.0f;
-  director.setObject(this);
+  mDensity = 1.0f;
+  director->setObject(this);
 }
 
 bool PhysicObject::isActive() const

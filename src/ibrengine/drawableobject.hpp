@@ -11,7 +11,7 @@ namespace ibrengine
 class DrawableObject: public Object
 {
 public:
-  explicit DrawableObject(MapObject &director);
+  explicit DrawableObject(const MapUnitPtr &director);
 
   int getTileId() const;
   void setTileId(int tileId);
@@ -26,6 +26,8 @@ private:
   float mRotation = 0.0f;
   int mTileId = -1;
 };
+
+using DrawableObjectScopedPtr = std::unique_ptr<DrawableObject>;
 
 } // namespace ibrengine
 

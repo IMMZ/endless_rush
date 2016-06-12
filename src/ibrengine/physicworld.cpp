@@ -77,9 +77,12 @@ void PhysicWorld::initFromMap(const Map &map)
   {
     if (i->get()->getType() == Layer::Type::Object)
     {
-      ObjectLayer *objLayer = static_cast<ObjectLayer*>(i->get());
-      for (auto obj = objLayer->beginPhysicalObjs(); obj != objLayer->endPhysicalObjs(); ++obj)
-        createBody(*(*obj));
+      const ObjectLayer *objLayer = static_cast<ObjectLayer*>(i->get());
+      for (auto i = objLayer->beginPhysicalObjs(); i != objLayer->endPhysicalObjs(); ++i)
+      {
+        const PhysicObject *physObj = static_cast<PhysicObject*>((*i).get());
+        createBody(*physObj);
+      }
     }
   }
 }

@@ -152,23 +152,21 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
 
 void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
 {
-  ObjectLayer::DrawableObjectCIterator i = layer->beginDrawableObjs();
-  while (i != layer->endDrawableObjs())
+  for (auto i = layer->beginDrawableObjs(); i != layer->endDrawableObjs(); ++i)
   {
     if ((*i)->isVisible())
     {
-      sf::Sprite *sprite = &this->getSprite((*i)->getTileId());
-      sprite->setPosition((*i)->getPosition().first, (*i)->getPosition().second);
-      sprite->setRotation((*i)->getRotation());
+      sf::Sprite &sprite = this->getSprite((*i)->getTileId());
+      sprite.setPosition((*i)->getPosition().first, (*i)->getPosition().second);
+      sprite.setRotation((*i)->getRotation());
       if (layer->getOpacity() < 1.0f)
       {
-        sf::Color color = sprite->getColor();
+        sf::Color color = sprite.getColor();
         color.a = 255 * layer->getOpacity();
-        sprite->setColor(color);
+        sprite.setColor(color);
       }
-      mRenderTarget.draw(*sprite);
+      mRenderTarget.draw(sprite);
     }
-    ++i;
   }
 }
 

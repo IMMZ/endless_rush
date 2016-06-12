@@ -7,10 +7,10 @@
 namespace ibrengine
 {
 
-AnimatableObject::AnimatableObject(const sf::String &name, MapObject &director, int tileId):
+AnimatableObject::AnimatableObject(const sf::String &name, const MapUnitPtr &director, int tileId):
   Object(director, Object::Type::Animatable)
 {
-  director.setObject(this);
+  director->setObject(this);
 }
 
 void AnimatableObject::update(const sf::Time &time)

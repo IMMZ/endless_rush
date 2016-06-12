@@ -2,6 +2,7 @@
 
 #include "mapobject.hpp"
 
+#include "object.hpp"
 #include "objectlayer.hpp"
 #include "physicobject.hpp"
 #include <iostream> // TODO: remove
@@ -23,17 +24,17 @@ void MapObject::setObject(Object *obj)
   {
     case Object::Type::Animatable:
     {
-      mAnimatableObj.reset(dynamic_cast<AnimatableObject*>(obj));
+      mAnimatableObj = dynamic_cast<AnimatableObject*>(obj);
       break;
     }
     case Object::Type::Drawable:
     {
-      mDrawableObj.reset(dynamic_cast<DrawableObject*>(obj));
+      mDrawableObj = dynamic_cast<DrawableObject*>(obj);
       break;
     }
     case Object::Type::Physical:
     {
-      mPhysicalObj.reset(dynamic_cast<PhysicObject*>(obj));
+      mPhysicalObj = dynamic_cast<PhysicObject*>(obj);
       break;
     }
   }
@@ -59,16 +60,6 @@ void MapObject::objectChanged(const Object &obj)
       break;
     }
   }
-}
-
-void MapObject::addToLayer(ObjectLayer &layer)
-{
-  if (mDrawableObj != nullptr)
-    layer.addDrawableObject(mDrawableObj.get());
-  if (mPhysicalObj != nullptr)
-    layer.addPhysicalObject(mPhysicalObj.get());
-  if (mAnimatableObj != nullptr)
-    layer.addAnimatableObject(mAnimatableObj.get());
 }
 
 const sf::String& MapObject::getName() const

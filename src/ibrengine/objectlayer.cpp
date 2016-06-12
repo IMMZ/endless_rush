@@ -2,9 +2,6 @@
 
 #include "objectlayer.hpp"
 
-#include "animatableobject.hpp"
-#include "physicobject.hpp"
-
 namespace ibrengine
 {
 
@@ -13,52 +10,59 @@ ObjectLayer::ObjectLayer(const std::string& name, int w, int h):
 {
 }
 
-void ObjectLayer::addMapObject(const std::shared_ptr<MapObject> &mapObj)
+void ObjectLayer::addObject(ObjectScopedPtr obj)
 {
-  mDirectors.push_back(mapObj);
-}
-
-void ObjectLayer::addDrawableObject(DrawableObject *drawableObj)
-{
-  mDrawableObjs.push_back(drawableObj);
-}
-
-void ObjectLayer::addPhysicalObject(PhysicObject *physicalObj)
-{
-  mPhysicalObjs.push_back(physicalObj);
-}
-
-void ObjectLayer::addAnimatableObject(AnimatableObject *animatableObj)
-{
-  mAnimatableObjs.push_back(animatableObj);
+  switch (obj->getType())
+  {
+    case Object::Type::Drawable:
+    {
+      DrawableObjectScopedPtr ptr =
+        internal::dynamic_unique_pointer_cast<Object, DrawableObject>(std::move(obj));
+      mDrawableObjs.push_back(std::move(ptr));
+      break;
+    }
+    case Object::Type::Animatable:
+    {
+      AnimatableObjectScopedPtr ptr =
+        internal::dynamic_unique_pointer_cast<Object, AnimatableObject>(std::move(obj));
+      mAnimatableObjs.push_back(std::move(ptr));
+      break;
+    }
+    case Object::Type::Physical:
+    {
+      PhysicalObjectScopedPtr ptr =
+        internal::dynamic_unique_pointer_cast<Object, PhysicObject>(std::move(obj));
+      mPhysicalObjs.push_back(std::move(ptr));
+      break;
+    }
+  }
 }
 
 int ObjectLayer::getObjectsCount(Object::Type objType) const
 {
   switch (objType)
   {
-    case Object::Type::Drawable:   { return mDrawableObjs.size(); }
-    case Object::Type::Physical:   { return mPhysicalObjs.size(); }
-    case Object::Type::Animatable: { return mAnimatableObjs.size(); }
-    default: break; // TODO: warn about Unknown obj type.
+    case Object::Type::Drawable:
+      return mDrawableObjs.size();
+    case Object::Type::Animatable:
+      return mAnimatableObjs.size();
+    case Object::Type::Physical:
+      return mPhysicalObjs.size();
   }
+  return 0;
 }
 
 int ObjectLayer::getTotalObjectsCount() const
 {
-  return (mDrawableObjs.size() + mPhysicalObjs.size() + mAnimatableObjs.size());
+  return (mAnimatableObjs.size() + mDrawableObjs.size() + mPhysicalObjs.size());
 }
 
 void ObjectLayer::update(const sf::Time &time)
 {
-  for (std::shared_ptr<MapObject> &mapObj: mDirectors)
-    mapObj->update(time);
-  /*for (AnimatableObject *anim: mAnimatableObjs)
-    anim->update(time);*/
-  /*for (PhysicObject *physObj: mPhysicalObjs)
-    physObj->update(time);*/
+  // TODO: How to update?
 }
 
+// Drawable objects.
 ObjectLayer::DrawableObjectIterator ObjectLayer::beginDrawableObjs()
 {
   return mDrawableObjs.begin();
@@ -77,6 +81,16 @@ ObjectLayer::DrawableObjectRIterator ObjectLayer::rbeginDrawableObjs()
 ObjectLayer::DrawableObjectCRIterator ObjectLayer::rbeginDrawableObjs() const
 {
   return mDrawableObjs.rbegin();
+}
+
+ObjectLayer::DrawableObjectCIterator ObjectLayer::cbeginDrawableObjs() const
+{
+  return mDrawableObjs.cbegin();
+}
+
+ObjectLayer::DrawableObjectCRIterator ObjectLayer::crbeginDrawableObjs() const
+{
+  return mDrawableObjs.crbegin();
 }
 
 ObjectLayer::DrawableObjectIterator ObjectLayer::endDrawableObjs()
@@ -99,6 +113,78 @@ ObjectLayer::DrawableObjectCRIterator ObjectLayer::rendDrawableObjs() const
   return mDrawableObjs.rend();
 }
 
+ObjectLayer::DrawableObjectCIterator ObjectLayer::cendDrawableObjs() const
+{
+  return mDrawableObjs.cend();
+}
+
+ObjectLayer::DrawableObjectCRIterator ObjectLayer::crendDrawableObjs() const
+{
+  return mDrawableObjs.crend();
+}
+
+// Animatable objects.
+ObjectLayer::AnimatableObjectIterator ObjectLayer::beginAnimatableObjs()
+{
+  return mAnimatableObjs.begin();
+}
+
+ObjectLayer::AnimatableObjectCIterator ObjectLayer::beginAnimatableObjs() const
+{
+  return mAnimatableObjs.begin();
+}
+
+ObjectLayer::AnimatableObjectRIterator ObjectLayer::rbeginAnimatableObjs()
+{
+  return mAnimatableObjs.rbegin();
+}
+
+ObjectLayer::AnimatableObjectCRIterator ObjectLayer::rbeginAnimatableObjs() const
+{
+  return mAnimatableObjs.rbegin();
+}
+
+ObjectLayer::AnimatableObjectCIterator ObjectLayer::cbeginAnimatableObjs() const
+{
+  return mAnimatableObjs.cbegin();
+}
+
+ObjectLayer::AnimatableObjectCRIterator ObjectLayer::crbeginAnimatableObjs() const
+{
+  return mAnimatableObjs.crbegin();
+}
+
+ObjectLayer::AnimatableObjectIterator ObjectLayer::endAnimatableObjs()
+{
+  return mAnimatableObjs.end();
+}
+
+ObjectLayer::AnimatableObjectCIterator ObjectLayer::endAnimatableObjs() const
+{
+  return mAnimatableObjs.end();
+}
+
+ObjectLayer::AnimatableObjectRIterator ObjectLayer::rendAnimatableObjs()
+{
+  return mAnimatableObjs.rend();
+}
+
+ObjectLayer::AnimatableObjectCRIterator ObjectLayer::rendAnimatableObjs() const
+{
+  return mAnimatableObjs.rend();
+}
+
+ObjectLayer::AnimatableObjectCIterator ObjectLayer::cendAnimatableObjs() const
+{
+  return mAnimatableObjs.cend();
+}
+
+ObjectLayer::AnimatableObjectCRIterator ObjectLayer::crendAnimatableObjs() const
+{
+  return mAnimatableObjs.crend();
+}
+
+// Physical objects.
 ObjectLayer::PhysicalObjectIterator ObjectLayer::beginPhysicalObjs()
 {
   return mPhysicalObjs.begin();
@@ -117,6 +203,16 @@ ObjectLayer::PhysicalObjectRIterator ObjectLayer::rbeginPhysicalObjs()
 ObjectLayer::PhysicalObjectCRIterator ObjectLayer::rbeginPhysicalObjs() const
 {
   return mPhysicalObjs.rbegin();
+}
+
+ObjectLayer::PhysicalObjectCIterator ObjectLayer::cbeginPhysicalObjs() const
+{
+  return mPhysicalObjs.cbegin();
+}
+
+ObjectLayer::PhysicalObjectCRIterator ObjectLayer::crbeginPhysicalObjs() const
+{
+  return mPhysicalObjs.crbegin();
 }
 
 ObjectLayer::PhysicalObjectIterator ObjectLayer::endPhysicalObjs()
@@ -139,44 +235,14 @@ ObjectLayer::PhysicalObjectCRIterator ObjectLayer::rendPhysicalObjs() const
   return mPhysicalObjs.rend();
 }
 
-ObjectLayer::AnimatableObjectIterator ObjectLayer::beginAnimatableObjs()
+ObjectLayer::PhysicalObjectCIterator ObjectLayer::cendPhysicalObjs() const
 {
-  return mAnimatableObjs.begin();
+  return mPhysicalObjs.cend();
 }
 
-ObjectLayer::AnimatableObjectCIterator ObjectLayer::beginAnimatableObjs() const
+ObjectLayer::PhysicalObjectCRIterator ObjectLayer::crendPhysicalObjs() const
 {
-  return mAnimatableObjs.begin();
-}
-
-ObjectLayer::AnimatableObjectRIterator ObjectLayer::rbeginAnimatableObjs()
-{
-  return mAnimatableObjs.rbegin();
-}
-
-ObjectLayer::AnimatableObjectCRIterator ObjectLayer::rbeginAnimatableObjs() const
-{
-  return mAnimatableObjs.rbegin();
-}
-
-ObjectLayer::AnimatableObjectIterator ObjectLayer::endAnimatableObjs()
-{
-  return mAnimatableObjs.end();
-}
-
-ObjectLayer::AnimatableObjectCIterator ObjectLayer::endAnimatableObjs() const
-{
-  return mAnimatableObjs.end();
-}
-
-ObjectLayer::AnimatableObjectRIterator ObjectLayer::rendAnimatableObjs()
-{
-  return mAnimatableObjs.rend();
-}
-
-ObjectLayer::AnimatableObjectCRIterator ObjectLayer::rendAnimatableObjs() const
-{
-  return mAnimatableObjs.rend();
+  return mPhysicalObjs.crend();
 }
 
 } // namespace ibrengine

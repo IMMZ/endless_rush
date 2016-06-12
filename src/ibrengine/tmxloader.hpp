@@ -41,10 +41,9 @@ private:
   std::unique_ptr<Animation>
   parseAnimation(int startId, int animId, const XmlNode *animNode);
   void parsePhysAnim(Map &map, int tileId, const XmlNode *objGroupNode); // TODO: rename parseShapeGroups
-  //void parsePoints(const XmlNode *polygonNode, ComplexShape *shape);
   void parseLayerData(TileLayer *layer, const XmlNode *dataNode);
   void parseLayers(Map *map, const XmlNode *mapNode);
-  void parseProperties(MapObject *mapObj, const XmlNode *objNode);
+  void parseProperties(const MapUnitPtr &mapObj, const XmlNode *objNode);
   void readProperties(const MapObject &mapObj, PhysicObject* physObj) const;
 
   std::unique_ptr<rapidxml::xml_document<char>> mXmlDoc;

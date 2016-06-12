@@ -3,22 +3,29 @@
 #ifndef MAPOBJECT_HPP
 #define MAPOBJECT_HPP
 
-#include "object.hpp"
+#include "global.hpp"
 
 #include <SFML/System/String.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <map>
 #include <memory>
+#include <iostream>
+namespace sf
+{
+
+class Time;
+
+}
 
 namespace ibrengine
 {
 
 class AnimatableObject;
 class DrawableObject;
+class Object;
 class ObjectLayer;
 class PhysicObject;
-class AnimatablePhysObject;
 class Shape;
 
 // TODO: rename to 'MapUnit'
@@ -35,14 +42,6 @@ public:
   // Mediator funcs.
   void setObject(Object *obj);
   void objectChanged(const Object &obj);
-
-  /**
-   * @brief Adds itself to the object layer.
-   * @details Adds this object and all its colleagues to the object layer.
-   * Ownership is belong to the layer which this object will be added to.
-   * @param layer Layer which this object will be added to.
-   */
-  void addToLayer(ObjectLayer &layer);
 
   const sf::String& getName() const;
   void setName(const sf::String &name);
@@ -76,11 +75,13 @@ private:
   std::map<sf::String /* name */, sf::String /* value */> mProperties;
   sf::String mName, mType;
   PositionI mPosition;
-  std::unique_ptr<DrawableObject> mDrawableObj;
-  std::unique_ptr<PhysicObject> mPhysicalObj;
-  std::unique_ptr<AnimatableObject> mAnimatableObj;
+  DrawableObject *mDrawableObj = nullptr;
+  PhysicObject *mPhysicalObj = nullptr;
+  AnimatableObject *mAnimatableObj = nullptr;
   bool mVisible = true;
 };
+
+using MapUnitPtr = std::shared_ptr<MapObject>;
 
 } // namespace ibrengine
 

@@ -444,7 +444,7 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
     utils::stdStringToNumber<int>(yAttr->value()));
 
   const XmlAttribute *gidAttr = objNode->first_attribute("gid");
-  MapObject *mapObj = new MapObject(name);
+  MapUnitPtr mapObj = std::make_shared<MapObject>(name);
   mapObj->setVisible(visible);
   this->parseProperties(mapObj, objNode); // TODO: better to accept MapObject&?
 
@@ -468,7 +468,7 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
     {
       // Create drawable part.
       int gid = utils::stdStringToNumber<int>(gidAttr->value());
-      DrawableObject *drawObj = new DrawableObject(*mapObj);
+      DrawableObject *drawObj = new DrawableObject(mapObj);
       drawObj->setTileId(gid);
 
       /*
@@ -479,10 +479,11 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
       PositionI newPos(pos); newPos.second -= h;
       drawObj->setPosition(newPos);
       drawObj->setSize(std::make_pair(w, h));
+      layer->addObject(ObjectScopedPtr(drawObj));
 
       if (animatable)
       {
-        AnimatableObject *animObj = new AnimatableObject(name, *mapObj, gid);
+        AnimatableObject *animObj = new AnimatableObject(name, mapObj, gid);
         animObj->mMap = map;
         for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
         {
@@ -494,38 +495,40 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
         }
         animObj->setPosition(pos);
         animObj->setSize(std::make_pair(w, h));
+        layer->addObject(ObjectScopedPtr(animObj));
       }
 
       // Create physical part.
       if (physical)
       {
-        PhysicObject *physObj = new PhysicObject(*mapObj);
+        PhysicObject *physObj = new PhysicObject(mapObj);
         physObj->setPosition(pos);
         physObj->setSize(std::make_pair(w, h));
         PhysicObject::ShapeGroup sg = map->getShapeGroup(gid);
         physObj->setShapeGroup(map->getShapeGroup(gid));
         readProperties(*mapObj, physObj);
+        layer->addObject(ObjectScopedPtr(physObj));
       }
     }
     else
     {
-      PhysicObject *physObj = new PhysicObject(*mapObj);
+      PhysicObject *physObj = new PhysicObject(mapObj);
       physObj->setPosition(pos);
       PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
       physObj->setShapeGroup(shapeGrp);
       readProperties(*mapObj, physObj);
+      layer->addObject(ObjectScopedPtr(physObj));
     }
   }
   else // PhysicalObject
   {
-    PhysicObject *physObj = new PhysicObject(*mapObj);
+    PhysicObject *physObj = new PhysicObject(mapObj);
     physObj->setPosition(pos);
     PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
     physObj->setShapeGroup(shapeGrp);
     readProperties(*mapObj, physObj);
+    layer->addObject(ObjectScopedPtr(physObj));
   }
-  mapObj->addToLayer(*layer);
-  layer->addMapObject(std::shared_ptr<MapObject>(mapObj));
 }
 
 std::unique_ptr<Animation>
@@ -592,7 +595,7 @@ void TmxLoader::parseLayers(Map *map, const XmlNode *mapNode)
   }
 }
 
-void TmxLoader::parseProperties(MapObject *mapObj, const XmlNode *objNode)
+void TmxLoader::parseProperties(const MapUnitPtr &mapObj, const XmlNode *objNode)
 {
   const XmlNode *propsNode = objNode->first_node("properties");
   if (propsNode == nullptr)

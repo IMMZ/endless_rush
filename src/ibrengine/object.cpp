@@ -2,12 +2,10 @@
 
 #include "object.hpp"
 
-#include "mapobject.hpp"
-
 namespace ibrengine
 {
 
-Object::Object(MapObject &director, Type type):
+Object::Object(const MapUnitPtr &director, Type type):
   mDirector(director),
   mType(type)
 {
@@ -40,10 +38,30 @@ Object::Type Object::getType() const
 
 void Object::setChanged()
 {
-  mDirector.objectChanged(*this);
+  mDirector->objectChanged(*this);
 }
 
-const MapObject& Object::getMapObject() const
+bool Object::isVisible() const
+{
+  return mDirector->isVisible();
+}
+
+bool Object::isDrawable() const
+{
+  return (mType == Type::Drawable);
+}
+
+bool Object::isAnimatable() const
+{
+  return (mType == Type::Animatable);
+}
+
+bool Object::isPhysical() const
+{
+  return (mType == Type::Physical);
+}
+
+MapUnitPtr Object::getMapObject() const
 {
   return mDirector;
 }

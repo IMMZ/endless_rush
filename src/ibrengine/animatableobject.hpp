@@ -1,7 +1,7 @@
 // TODO: license text
 
-#ifndef ANIMATABLEOBJECT_HPP_
-#define ANIMATABLEOBJECT_HPP_
+#ifndef ANIMATABLEOBJECT_HPP
+#define ANIMATABLEOBJECT_HPP
 
 #include "animation.hpp"
 #include "object.hpp"
@@ -25,7 +25,7 @@ class MapObject;
 class AnimatableObject: public Object
 {
 public:
-  AnimatableObject(const sf::String &name, MapObject &director, int tileId);
+  AnimatableObject(const sf::String &name, const MapUnitPtr &director, int tileId);
 
   void addAnimation(const sf::String &animName, Animation *anim);
   void setCurrentAnimation(const sf::String &animName);
@@ -45,6 +45,8 @@ private:
   Animation *mCurrentAnim = nullptr;
 };
 
+using AnimatableObjectScopedPtr = std::unique_ptr<AnimatableObject>;
+
 } // namespace ibrengine
 
-#endif // ANIMATABLEOBJECT_HPP_
+#endif // ANIMATABLEOBJECT_HPP

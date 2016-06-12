@@ -1,7 +1,7 @@
 // TODO: license text
 
-#ifndef GLOBAL_HPP
-#define GLOBAL_HPP
+#ifndef IBRENGINE_GLOBAL_HPP
+#define IBRENGINE_GLOBAL_HPP
 
 #include <memory>
 
@@ -30,14 +30,20 @@ namespace internal
 
 // Functions.
 
-template<typename T, typename ... Ts>
-std::unique_ptr<T> make_unique(Ts&& ... params)
+template<typename T, typename... Ts>
+std::unique_ptr<T> make_unique(Ts&& ...params)
 {
   return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
 }
 
+template<typename From, typename To>
+std::unique_ptr<To> dynamic_unique_pointer_cast(std::unique_ptr<From> &&ptr)
+{
+  return std::unique_ptr<To>(dynamic_cast<To*>(ptr.release()));
 }
 
-}
+} // namespace internal
 
-#endif // GLOBAL_HPP
+} // namespace ibrengine
+
+#endif // IBRENGINE_GLOBAL_HPP
