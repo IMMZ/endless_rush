@@ -19,7 +19,8 @@ namespace ibrengine
 class Object
 {
 public:
-  // The type is used as flags when creating objects in ObjectDirector.
+  ENABLE_DEFAULT_MOVE(Object);
+
   /** @enum Type
    * @brief Represents the object type.
    */
@@ -56,6 +57,8 @@ private:
 };
 
 using ObjectScopedPtr = std::unique_ptr<Object>;
+using ObjectSharedPtr = std::shared_ptr<Object>;
+using ObjectWeakPtr = std::weak_ptr<Object>;
 
 } // namespace ibrengine
 

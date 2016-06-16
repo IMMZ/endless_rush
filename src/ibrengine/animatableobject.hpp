@@ -46,6 +46,8 @@ private:
 };
 
 using AnimatableObjectScopedPtr = std::unique_ptr<AnimatableObject>;
+using AnimatableObjectSharedPtr = std::shared_ptr<AnimatableObject>;
+using AnimatableObjectWeakPtr = std::weak_ptr<AnimatableObject>;
 
 } // namespace ibrengine
 

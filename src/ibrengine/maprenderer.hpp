@@ -26,7 +26,6 @@ class MapRenderer
 {
 public:
   explicit MapRenderer(sf::RenderTarget &renderTarget);
-  ~MapRenderer();
 
   void renderMap(const Map *map);
 
@@ -38,7 +37,7 @@ private:
   inline sf::Sprite& getSprite(int index);
 
   std::vector<std::shared_ptr<sf::Texture>> mTextures;
-  sf::Sprite *mSprites = nullptr;
+  std::unique_ptr<sf::Sprite[]> mSprites;
   const Map *mMap = nullptr;
   sf::RenderTarget &mRenderTarget;
 };

@@ -28,6 +28,8 @@ private:
 };
 
 using DrawableObjectScopedPtr = std::unique_ptr<DrawableObject>;
+using DrawableObjectSharedPtr = std::shared_ptr<DrawableObject>;
+using DrawableObjectWeakPtr = std::weak_ptr<DrawableObject>;
 
 } // namespace ibrengine
 

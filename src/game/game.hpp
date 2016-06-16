@@ -16,6 +16,9 @@
 class Game
 {
 public:
+  DISABLE_COPY(Game);
+  DISABLE_MOVE(Game);
+
   static Game& instance();
 
   void init();
@@ -28,9 +31,6 @@ public:
   void setSpeed(float speed);
 
 private:
-  DISABLE_COPY(Game);
-  DISABLE_MOVE(Game);
-
   static const std::string NAME;
   static const sf::Time UPDATES_PER_SECOND;
 

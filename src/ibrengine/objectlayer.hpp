@@ -21,7 +21,7 @@ public:
   ObjectLayer(const std::string &name, int w, int h);
 
   // Object stuff.
-  void addObject(ObjectScopedPtr obj);
+  void addObject(ObjectScopedPtr &&obj);
 
   int getObjectsCount(Object::Type) const;
   int getTotalObjectsCount() const;

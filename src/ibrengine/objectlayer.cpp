@@ -10,7 +10,7 @@ ObjectLayer::ObjectLayer(const std::string& name, int w, int h):
 {
 }
 
-void ObjectLayer::addObject(ObjectScopedPtr obj)
+void ObjectLayer::addObject(ObjectScopedPtr &&obj)
 {
   switch (obj->getType())
   {

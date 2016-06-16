@@ -15,6 +15,9 @@
 class Settings
 {
 public:
+  DISABLE_COPY(Settings);
+  DISABLE_MOVE(Settings);
+
   static Settings& instance();
   void init();
   Input::Action getAction(sf::Keyboard::Key key);
@@ -22,9 +25,6 @@ public:
   void setVideoMode(const sf::VideoMode &size);
 
 private:
-  DISABLE_COPY(Settings);
-  DISABLE_MOVE(Settings);
- 
   Settings() = default;
 
   std::map<sf::Keyboard::Key, Input::Action> mActions;

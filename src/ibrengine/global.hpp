@@ -8,9 +8,17 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Macroses.
 /////////////////////////////////////////////////////////////////////////////////////////////
+#define ENABLE_DEFAULT_COPY(ClassName)\
+  ClassName(const ClassName &obj) = default;\
+  ClassName& operator=(const ClassName &obj) = default;
+
 #define DISABLE_COPY(ClassName)\
   ClassName(const ClassName &obj) = delete;\
   ClassName& operator=(const ClassName &obj) = delete;
+
+#define ENABLE_DEFAULT_MOVE(ClassName)\
+  ClassName(ClassName &&obj) = default;\
+  ClassName& operator=(ClassName &&obj) = default;
 
 #define DISABLE_MOVE(ClassName)\
   ClassName(ClassName &&obj) = delete;\

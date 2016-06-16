@@ -80,6 +80,8 @@ private:
 };
 
 using PhysicalObjectScopedPtr = std::unique_ptr<PhysicObject>;
+using PhysicalObjectSharedPtr = std::shared_ptr<PhysicObject>;
+using PhysicalObjectWeakPtr = std::weak_ptr<PhysicObject>;
 
 } // namespace ibrengine
 

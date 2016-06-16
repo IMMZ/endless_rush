@@ -16,6 +16,8 @@ namespace internal
 class Shape
 {
 public:
+  ENABLE_DEFAULT_MOVE(Shape);
+
   using PointIterator = std::vector<Point>::iterator;
   using PointCIterator = std::vector<Point>::const_iterator;
   using PointRIterator = std::vector<Point>::reverse_iterator;

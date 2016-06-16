@@ -26,11 +26,6 @@ MapRenderer::MapRenderer(sf::RenderTarget &renderTarget):
 {
 }
 
-MapRenderer::~MapRenderer()
-{
-  delete[] mSprites;
-}
-
 void MapRenderer::renderMap(const Map *map)
 {
   if (mMap != map)
@@ -68,12 +63,10 @@ bool MapRenderer::isObjectInView(const DrawableObject &mapObj) const
 
 void MapRenderer::loadSprites()
 {
-  // Reinitializing storage for sprites.
-  delete[] mSprites;
   int spritesCount = 0;
   for (Map::TilesetConstIterator i = mMap->tilesetsBegin(); i != mMap->tilesetsEnd(); ++i)
     spritesCount += i->get()->getTilesCount();
-  mSprites = new sf::Sprite[spritesCount];
+  mSprites.reset(new sf::Sprite[spritesCount]);
   std::cout << "Loaded " << spritesCount << " tiles." << std::endl;
 
   for (Map::TilesetConstIterator i = mMap->tilesetsBegin(); i != mMap->tilesetsEnd(); ++i)

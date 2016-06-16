@@ -20,6 +20,9 @@ namespace ibrengine
 class AudioManager
 {
 public:
+  DISABLE_COPY(AudioManager);
+  DISABLE_MOVE(AudioManager);
+
   /**
    * @brief Constructor.
    */
@@ -161,9 +164,6 @@ public:
   void setFadeInterval(const sf::Time &interval);
 
 private:
-  DISABLE_COPY(AudioManager);
-  DISABLE_MOVE(AudioManager);
-
   sf::Music mMusic;
   sf::Time mFadeInterval;
   float mSpeed = 1.0f, mVolume = 0.5, mOldVolume = 0.0f, mFadeStep = 0.1f;

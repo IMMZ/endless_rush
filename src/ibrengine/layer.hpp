@@ -3,6 +3,8 @@
 #ifndef LAYER_HPP
 #define LAYER_HPP
 
+#include "global.hpp"
+
 #include <string>
 
 namespace ibrengine
@@ -11,6 +13,8 @@ namespace ibrengine
 class Layer
 {
 public:
+  ENABLE_DEFAULT_MOVE(Layer);
+
   enum class Type
   {
     Tile,
