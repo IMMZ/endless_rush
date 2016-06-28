@@ -6,8 +6,8 @@
 namespace ibrengine
 {
 
-PhysicObject::PhysicObject(const MapUnitPtr &director, Type type):
-  Object(director, Object::Type::Physical),
+PhysicObject::PhysicObject(const MapUnitPtr &director, int id, Type type):
+  Object(director, Object::Type::Physical, id),
   mType(type)
 {
   //if (mType == Type::Dynamic)

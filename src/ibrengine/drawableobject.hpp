@@ -11,7 +11,7 @@ namespace ibrengine
 class DrawableObject: public Object
 {
 public:
-  explicit DrawableObject(const MapUnitPtr &director);
+  explicit DrawableObject(const MapUnitPtr &director, int id);
 
   int getTileId() const;
   void setTileId(int tileId);

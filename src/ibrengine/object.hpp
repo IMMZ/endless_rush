@@ -31,7 +31,7 @@ public:
     Animatable, ///!< The object is animation.
   };
 
-  Object(const MapUnitPtr &director, Type type);
+  Object(const MapUnitPtr &director, Type type, int id);
   virtual ~Object() = default;
 
   const PositionI& getPosition() const;
@@ -44,6 +44,7 @@ public:
   bool isDrawable() const;
   bool isAnimatable() const;
   bool isPhysical() const;
+  int getId() const;
 
   virtual void update(const sf::Time &time) = 0;
 
@@ -53,6 +54,7 @@ protected:
 private:
   MapUnitPtr mDirector;
   PositionI mPos, mSize;
+  int mId = 0; // TODO: change to uint32
   Type mType;
 };
 

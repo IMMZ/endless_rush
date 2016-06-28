@@ -28,7 +28,7 @@ public:
     Dynamic = b2_dynamicBody
   };
 
-  explicit PhysicObject(const MapUnitPtr &director, Type t = Type::Static);
+  explicit PhysicObject(const MapUnitPtr &director, int id, Type t = Type::Static);
 
   bool isActive() const;
   void setActive(bool active);

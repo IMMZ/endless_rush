@@ -7,8 +7,8 @@
 namespace ibrengine
 {
 
-DrawableObject::DrawableObject(const MapUnitPtr &director):
-  Object(director, Object::Type::Drawable)
+DrawableObject::DrawableObject(const MapUnitPtr &director, int id):
+  Object(director, Object::Type::Drawable, id)
 {
   director->setObject(this);
 }

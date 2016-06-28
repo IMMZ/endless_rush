@@ -422,6 +422,8 @@ void TmxLoader::readProperties(const MapObject &mapObj, PhysicObject *physObj) c
 void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode)
 {
   // All objects have name and position so we can parse them at first.
+  const XmlAttribute *idAttr = objNode->first_attribute("id");
+  const int id = utils::stdStringToNumber<int>(idAttr->value());
   sf::String name, type;
   const XmlAttribute *nameAttr = objNode->first_attribute("name");
   const XmlAttribute *typeAttr = objNode->first_attribute("type");
@@ -468,7 +470,7 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
     {
       // Create drawable part.
       int gid = utils::stdStringToNumber<int>(gidAttr->value());
-      DrawableObject *drawObj = new DrawableObject(mapObj);
+      DrawableObject *drawObj = new DrawableObject(mapObj, id);
       drawObj->setTileId(gid);
 
       /*
@@ -483,7 +485,7 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
 
       if (animatable)
       {
-        AnimatableObject *animObj = new AnimatableObject(name, mapObj, gid);
+        AnimatableObject *animObj = new AnimatableObject(name, mapObj, gid, id);
         animObj->mMap = map;
         for (auto i = mapObj->propertiesBegin(); i != mapObj->propertiesEnd(); ++i)
         {
@@ -501,7 +503,7 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
       // Create physical part.
       if (physical)
       {
-        PhysicObject *physObj = new PhysicObject(mapObj);
+        PhysicObject *physObj = new PhysicObject(mapObj, id);
         physObj->setPosition(pos);
         physObj->setSize(std::make_pair(w, h));
         PhysicObject::ShapeGroup sg = map->getShapeGroup(gid);
@@ -512,7 +514,7 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
     }
     else
     {
-      PhysicObject *physObj = new PhysicObject(mapObj);
+      PhysicObject *physObj = new PhysicObject(mapObj, id);
       physObj->setPosition(pos);
       PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
       physObj->setShapeGroup(shapeGrp);
@@ -522,7 +524,7 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
   }
   else // PhysicalObject
   {
-    PhysicObject *physObj = new PhysicObject(mapObj);
+    PhysicObject *physObj = new PhysicObject(mapObj, id);
     physObj->setPosition(pos);
     PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
     physObj->setShapeGroup(shapeGrp);

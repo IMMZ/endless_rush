@@ -5,8 +5,9 @@
 namespace ibrengine
 {
 
-Object::Object(const MapUnitPtr &director, Type type):
+Object::Object(const MapUnitPtr &director, Type type, int id):
   mDirector(director),
+  mId(id),
   mType(type)
 {
 }
@@ -59,6 +60,11 @@ bool Object::isAnimatable() const
 bool Object::isPhysical() const
 {
   return (mType == Type::Physical);
+}
+
+int Object::getId() const
+{
+  return mId;
 }
 
 MapUnitPtr Object::getMapObject() const

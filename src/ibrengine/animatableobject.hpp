@@ -25,7 +25,7 @@ class MapObject;
 class AnimatableObject: public Object
 {
 public:
-  AnimatableObject(const sf::String &name, const MapUnitPtr &director, int tileId);
+  AnimatableObject(const sf::String &name, const MapUnitPtr &director, int tileId, int id);
 
   void addAnimation(const sf::String &animName, Animation *anim);
   void setCurrentAnimation(const sf::String &animName);
