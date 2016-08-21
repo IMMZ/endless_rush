@@ -35,10 +35,12 @@ void MapRenderer::renderMap(const Map *map)
   }
   for (Map::LayerConstIterator i = map->layersBegin(); i != map->layersEnd(); ++i)
   {
-    if (i->get()->getType() == Layer::Type::Tile && i->get()->isVisible())
-      this->renderTileLayer(static_cast<TileLayer*>(i->get()));
-    else if (i->get()->getType() == Layer::Type::Object && i->get()->isVisible())
-      this->renderObjectLayer(static_cast<ObjectLayer*>(i->get()));
+    if ((*i)->getType() == Layer::Type::Tile && (*i)->isVisible())
+      renderTileLayer(static_cast<TileLayer*>(i->get()));
+    else if ((*i)->getType() == Layer::Type::Object && (*i)->isVisible())
+      renderObjectLayer(static_cast<ObjectLayer*>(i->get()));
+    else if ((*i)->getType() == Layer::Type::Image and (*i)->isVisible())
+      renderImageLayer(std::static_pointer_cast<ImageLayer>(*i));
   }
 }
 
@@ -95,6 +97,32 @@ void MapRenderer::loadSprites()
       }
     }
   }
+
+  // Loading sprites for image layers.
+  for (auto it = mMap->layersBegin(); it != mMap->layersEnd(); ++it)
+  {
+    if ((*it)->getType() == Layer::Type::Image)
+    {
+      const ImageLayerSharedPtr &imgLayer = std::static_pointer_cast<ImageLayer>(*it);
+      std::shared_ptr<sf::Texture> imgTexture(new sf::Texture);
+      imgTexture->loadFromFile(imgLayer->getImgPath());
+      sf::Sprite imgSprite(*imgTexture);
+      imgSprite.setPosition(0.0f, 0.0f);
+      if (imgLayer->getOpacity() < 1.0f)
+      {
+        sf::Color color = imgSprite.getColor();
+        color.a = 255 * imgLayer->getOpacity();
+        imgSprite.setColor(color);
+      }
+      mImgSprites.insert(std::make_pair(imgLayer->getName(), imgSprite));
+      mTextures.push_back(imgTexture);
+    }
+  }
+}
+
+void MapRenderer::renderImageLayer(const ImageLayerSharedPtr &imgLayer)
+{
+  mRenderTarget.draw(mImgSprites.at(imgLayer->getName()));
 }
 
 void MapRenderer::renderTileLayer(const TileLayer *layer)

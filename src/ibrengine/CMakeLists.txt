@@ -1,6 +1,6 @@
 project(ibrengine)
 cmake_minimum_required(VERSION 2.8)
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -fsanitize=address)
 
 find_package(SFML 2.1 COMPONENTS system window graphics)
 
@@ -14,6 +14,7 @@ set(SRC
   debugdraw.cpp
   drawableobject.cpp
   exception.cpp
+  imagelayer.cpp
   layer.cpp
   map.cpp
   maploadexception.cpp
@@ -22,7 +23,7 @@ set(SRC
   object.cpp
   objectlayer.cpp
   physicobject.cpp
-  physicworld.cpp
+  physicworldx.cpp
   polygonshape.cpp
   shape.cpp
   tilelayer.cpp

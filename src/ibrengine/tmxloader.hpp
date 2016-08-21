@@ -34,6 +34,7 @@ private:
   std::shared_ptr<Tileset>
   parseTileset(Map *map, const XmlNode *tilesetNode);
   void parseTilesets(Map *map, const XmlNode *mapNode);
+  Layer* parseImageLayer(const XmlNode *layerNode);
   Layer* parseTileLayer(const XmlNode *layerNode);
   Layer* parseObjectLayer(Map *map, const XmlNode *layerNode);
   void parseObjects(Map *map, ObjectLayer *layer, const XmlNode *layerNode);

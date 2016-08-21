@@ -6,6 +6,7 @@
 #include "chainshape.hpp"
 #include "circle.hpp"
 #include "global.hpp"
+#include "imagelayer.hpp"
 #include "maploadexception.hpp"
 #include "objectlayer.hpp"
 #include "physicobject.hpp"
@@ -277,6 +278,51 @@ void TmxLoader::parseTilesets(Map *map, const XmlNode *mapNode)
     map->addTileset(this->parseTileset(map, tSetNode));
     tSetNode = tSetNode->next_sibling("tileset");
   }
+}
+
+Layer* TmxLoader::parseImageLayer(const XmlNode *layerNode)
+{
+  const XmlNode *imageNode = layerNode->first_node("image");
+  XmlAttribute *layerAttr = layerNode->first_attribute();
+  std::string layerName;
+  float opacity = 1.0f;
+  bool visible = true;
+
+  while (layerAttr != nullptr)
+  {
+    if (strcmp(layerAttr->name(), "name") == 0)
+      layerName = layerAttr->value();
+    else if (strcmp(layerAttr->name(), "opacity") == 0)
+      opacity = utils::stdStringToNumber<float>(layerAttr->value());
+    else if (strcmp(layerAttr->name(), "visible") == 0 and strcmp(layerAttr->value(), "0") == 0)
+      visible = false;
+    layerAttr = layerAttr->next_attribute();
+  }
+
+  if (imageNode != nullptr)
+  {
+    std::string imgPath;
+    int w = 0, h = 0;
+
+    // Attributes
+    XmlAttribute *imgAttr = imageNode->first_attribute();
+    while (imgAttr != nullptr)
+    {
+      if (strcmp(imgAttr->name(), "source") == 0)
+        imgPath = imgAttr->value();
+      else if (strcmp(imgAttr->name(), "width") == 0)
+        w = utils::stdStringToNumber<int>(imgAttr->value());
+      else if (strcmp(imgAttr->name(), "heigth") == 0)
+        h = utils::stdStringToNumber<int>(imgAttr->value());
+      imgAttr = imgAttr->next_attribute();
+    }
+
+    ImageLayer *imgLayer = new ImageLayer(layerName, w, h, imgPath);
+    imgLayer->setVisible(visible);
+    imgLayer->setOpacity(opacity);
+    return imgLayer;
+  }
+  return nullptr;
 }
 
 Layer* TmxLoader::parseTileLayer(const XmlNode *layerNode)
@@ -593,6 +639,8 @@ void TmxLoader::parseLayers(Map *map, const XmlNode *mapNode)
       map->addLayer(this->parseTileLayer(innerNode));
     else if (strcmp(innerNode->name(), "objectgroup") == 0)
       map->addLayer(this->parseObjectLayer(map, innerNode));
+    else if (strcmp(innerNode->name(), "imagelayer") == 0)
+      map->addLayer(this->parseImageLayer(innerNode));
     innerNode = innerNode->next_sibling();
   }
 }
