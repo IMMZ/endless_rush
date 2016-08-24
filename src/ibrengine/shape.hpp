@@ -39,10 +39,13 @@ public:
   bool isValid() const;
   const PositionI& getPosition() const;
   void setPosition(const PositionI &pos);
+  bool isLinkedToTile() const;
+  void setLinkedToTile(bool linked);
 
 private:
   PositionI mPos = { 0, 0 };
   Type mType = Type::Invalid;
+  bool mLinkedToTile = false; // Need for correct positioning of fixture with box2d
 };
 
 } // namespace internal

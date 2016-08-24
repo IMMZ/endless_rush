@@ -58,9 +58,10 @@ std::unique_ptr<Map> TmxLoader::loadMap(const std::string &tmxPath)
  * Square and Circle have 'width' and 'height' attributes. Circle also has
  * '</ellipse>' subnode.
  * Polygon has 'polygon_points' subnode.
- * Polyline has 'poline_points' subnode.
+ * Polyline has 'polyline_points' subnode.
  */
-void TmxLoader::parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNode *objectNode)
+void TmxLoader::parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNode *objectNode,
+  TileLinkage tileLinkage)
 {
   if (objectNode == nullptr)
     return;
@@ -130,6 +131,7 @@ void TmxLoader::parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNod
         std::make_pair(
             utils::stdStringToNumber<int>(xAttr->value()),
             utils::stdStringToNumber<int>(yAttr->value())));
+    shape->setLinkedToTile(tileLinkage == TileLinkage::LinkedToTiled ? true : false);
     shapeGrp.push_back(shape);
 }
 
@@ -562,7 +564,8 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
     {
       PhysicObject *physObj = new PhysicObject(mapObj, id);
       physObj->setPosition(pos);
-      PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
+      PhysicObject::ShapeGroup shapeGrp;
+      parseShapeGroup(shapeGrp, objNode, TileLinkage::NotLinkedToTile);
       physObj->setShapeGroup(shapeGrp);
       readProperties(*mapObj, physObj);
       layer->addObject(ObjectScopedPtr(physObj));
@@ -572,7 +575,8 @@ void TmxLoader::parseObject(Map *map, ObjectLayer *layer, const XmlNode *objNode
   {
     PhysicObject *physObj = new PhysicObject(mapObj, id);
     physObj->setPosition(pos);
-    PhysicObject::ShapeGroup shapeGrp; parseShapeGroup(shapeGrp, objNode);
+    PhysicObject::ShapeGroup shapeGrp;
+    parseShapeGroup(shapeGrp, objNode, TileLinkage::NotLinkedToTile);
     physObj->setShapeGroup(shapeGrp);
     readProperties(*mapObj, physObj);
     layer->addObject(ObjectScopedPtr(physObj));
@@ -602,13 +606,13 @@ void TmxLoader::parsePhysAnim(Map &map, int tileId, const XmlNode *objGroupNode)
   PhysicObject::ShapeGroup objGroup;
   while (objNode != nullptr)
   {
-    this->parseShapeGroup(objGroup, objNode);
+    this->parseShapeGroup(objGroup, objNode, TileLinkage::LinkedToTiled);
     objNode = objNode->next_sibling("object");
-    if (!objGroup.empty())
-    {
-      map.addShapeGroup(tileId, objGroup);
-      ::std::cout << "Added shapegroup to the map with id: " << tileId << ::std::endl;
-    }
+  }
+  if (!objGroup.empty())
+  {
+    map.addShapeGroup(tileId, objGroup);
+    ::std::cout << "Added shapegroup to the map with id: " << tileId << ::std::endl;
   }
 }
 

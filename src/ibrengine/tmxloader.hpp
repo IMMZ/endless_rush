@@ -29,7 +29,13 @@ private:
   using XmlNode = rapidxml::xml_node<char>;
   using XmlAttribute = rapidxml::xml_attribute<char>;
 
-  void parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNode *objectNode); // TODO: parseShape rename
+  enum class TileLinkage
+  {
+    NotLinkedToTile,
+    LinkedToTiled
+  };
+
+  void parseShapeGroup(PhysicObject::ShapeGroup &shapeGrp, const XmlNode *objectNode, TileLinkage linkage); // TODO: parseShape rename
   Map* parseMap(const XmlNode *mapNode);
   std::shared_ptr<Tileset>
   parseTileset(Map *map, const XmlNode *tilesetNode);

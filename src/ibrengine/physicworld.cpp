@@ -93,7 +93,7 @@ void PhysicWorld::createBody(const PhysicObject &obj)
   bodyDef.type = static_cast<b2BodyType>(obj.getType());
   bodyDef.active = obj.isActive();
   bodyDef.allowSleep = obj.isAllowSleep();
-  bodyDef.angle = obj.getAngle() / 57.2958f;
+  bodyDef.angle = obj.getAngle() / DegreesPerRadian;
   bodyDef.angularDamping = obj.getAngularDamping();
   bodyDef.angularVelocity = obj.getAngularVelocity();
   bodyDef.awake = obj.isAwake();
@@ -124,14 +124,29 @@ void PhysicWorld::createBody(const PhysicObject &obj)
     {
       const internal::Box *box = dynamic_cast<const internal::Box*>(shape.get());
       b2PolygonShape *polygonShape = new b2PolygonShape;
-      b2Vec2 vertices[4] =
+
+      constexpr int8_t vertexCount = 4;
+      b2Vec2 vertices[vertexCount] =
       {
           b2Vec2(0.0f, 0.0f),
           b2Vec2(box->getWidth() / PixelsPerUnit, 0.0f),
           b2Vec2(box->getWidth() / PixelsPerUnit, box->getHeight() / PixelsPerUnit),
           b2Vec2(0.0f, box->getHeight() / PixelsPerUnit)
       };
-      polygonShape->Set(vertices, 4);
+
+      /*
+       * For objects linked to tile (i.e. collision objects) we should use an offset
+       * to correctly position them relative to the object's tile. There is no need to
+       * do such things for free objects put on the map, because they don't use
+       * tiles.
+       */
+      if (box->isLinkedToTile())
+      {
+        for (b2Vec2 &vertex: vertices)
+          vertex += b2Vec2(box->getPosition().first / PixelsPerUnit, box->getPosition().second / PixelsPerUnit);
+      }
+
+      polygonShape->Set(vertices, vertexCount);
       newShape = polygonShape;
     }
     else if (shape->getType() == internal::Shape::Type::Circle)
@@ -139,18 +154,24 @@ void PhysicWorld::createBody(const PhysicObject &obj)
       const internal::Circle *circle = dynamic_cast<const internal::Circle*>(shape.get());
       b2CircleShape *circleShape = new b2CircleShape;
       circleShape->m_radius = circle->getRadius() / PixelsPerUnit;
-      bodyDef.position += b2Vec2(circleShape->m_radius, circleShape->m_radius);
-      mWorld.DestroyBody(newBody);
-      newBody = mWorld.CreateBody(&bodyDef);
+      circleShape->m_p += b2Vec2(circleShape->m_radius, circleShape->m_radius);
+      if (circle->isLinkedToTile())
+        circleShape->m_p += b2Vec2(
+            circle->getPosition().first / PixelsPerUnit,
+            circle->getPosition().second / PixelsPerUnit);
       newShape = circleShape;
     }
     else if (shape->getType() == internal::Shape::Type::Chain)
     {
       const internal::ChainShape *chain = dynamic_cast<const internal::ChainShape*>(shape.get());
-      size_t pointsCount = chain->getPointsCount();
+      const size_t pointsCount = chain->getPointsCount();
       std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[pointsCount]);
       for (size_t i = 0; i < pointsCount; ++i)
+      {
         vertices[i].Set(chain->getPoint(i).first / PixelsPerUnit, chain->getPoint(i).second / PixelsPerUnit);
+        if (chain->isLinkedToTile())
+          vertices[i] += b2Vec2(chain->getPosition().first / PixelsPerUnit, chain->getPosition().second / PixelsPerUnit);
+      }
 
       b2ChainShape *chainShape = new b2ChainShape;
       chainShape->CreateChain(vertices.get(), pointsCount);
@@ -165,6 +186,8 @@ void PhysicWorld::createBody(const PhysicObject &obj)
       while (i != polyShape->endPoints())
       {
         vertices[i - polyShape->beginPoints()] = b2Vec2(i->first / PixelsPerUnit, i->second / PixelsPerUnit);
+        if (polyShape->isLinkedToTile())
+          vertices[i - polyShape->beginPoints()] += b2Vec2(polyShape->getPosition().first / PixelsPerUnit, polyShape->getPosition().second / PixelsPerUnit);
         ++i;
       }
       polygonShape->Set(vertices.get(), polyShape->getPointsCount());
@@ -186,7 +209,7 @@ void PhysicWorld::changePhysicObject(const b2Body &body, PhysicObject &physObj)
 {
   physObj.setType(static_cast<PhysicObject::Type>(body.GetType()));
   physObj.setActive(body.IsActive());
-  physObj.setAngle(body.GetAngle() * 57.2958f);
+  physObj.setAngle(body.GetAngle() * DegreesPerRadian);
   physObj.setAngularDamping(body.GetAngularDamping());
   physObj.setAngularVelocity(body.GetAngularVelocity());
   physObj.setAllowSleep(body.IsSleepingAllowed());

@@ -45,6 +45,7 @@ private:
   static constexpr int32 VelocityIterations = 10;
   static constexpr int32 PositionIterations = 10;
   static constexpr float PixelsPerUnit = 32.0f;
+  static constexpr float DegreesPerRadian = 57.2958f;
 
   void createBody(const PhysicObject &obj);
   void changePhysicObject(const b2Body &body, PhysicObject &physObj);

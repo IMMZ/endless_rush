@@ -1,6 +1,6 @@
 project(ibrengine)
 cmake_minimum_required(VERSION 2.8)
-add_definitions(-std=c++11 -fsanitize=address)
+add_definitions(-std=c++11)
 
 find_package(SFML 2.1 COMPONENTS system window graphics)
 
@@ -23,7 +23,7 @@ set(SRC
   object.cpp
   objectlayer.cpp
   physicobject.cpp
-  physicworldx.cpp
+  physicworld.cpp
   polygonshape.cpp
   shape.cpp
   tilelayer.cpp

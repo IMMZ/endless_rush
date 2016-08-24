@@ -33,6 +33,16 @@ void Shape::setPosition(const PositionI &pos)
   mPos = pos;
 }
 
+bool Shape::isLinkedToTile() const
+{
+  return mLinkedToTile;
+}
+
+void Shape::setLinkedToTile(bool linked)
+{
+  mLinkedToTile = linked;
+}
+
 } // namespace internal
 
 } // namespace ibrengine
