@@ -46,10 +46,22 @@ public:
   bool isPhysical() const;
   int getId() const;
 
+  // Properties.
+  const sf::String& getProperty(const sf::String &propertyName) const;
+  bool hasProperty(const sf::String &propertyName) const;
+  MapObject::PropertyIterator propertiesBegin();
+  MapObject::PropertyConstIterator propertiesBegin() const;
+  MapObject::PropertyReverseIterator propertiesRBegin();
+  MapObject::PropertyConstReverseIterator propertiesRBegin() const;
+  MapObject::PropertyIterator propertiesEnd();
+  MapObject::PropertyConstIterator propertiesEnd() const;
+  MapObject::PropertyReverseIterator propertiesREnd();
+  MapObject::PropertyConstReverseIterator propertiesREnd() const;
+
   virtual void update(const sf::Time &time) = 0;
 
 protected:
- MapUnitPtr getMapObject() const;
+  MapUnitPtr getMapObject() const;
 
 private:
   MapUnitPtr mDirector;

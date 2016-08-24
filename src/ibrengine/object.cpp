@@ -67,6 +67,56 @@ int Object::getId() const
   return mId;
 }
 
+const sf::String& Object::getProperty(const sf::String &propertyName) const
+{
+  return getMapObject()->getProperty(propertyName);
+}
+
+bool Object::hasProperty(const sf::String &propertyName) const
+{
+  return getMapObject()->hasProperty(propertyName);
+}
+
+MapObject::PropertyIterator Object::propertiesBegin()
+{
+  return getMapObject()->propertiesBegin();
+}
+
+MapObject::PropertyConstIterator Object::propertiesBegin() const
+{
+  return getMapObject()->propertiesBegin();
+}
+
+MapObject::PropertyReverseIterator Object::propertiesRBegin()
+{
+  return getMapObject()->propertiesRBegin();
+}
+
+MapObject::PropertyConstReverseIterator Object::propertiesRBegin() const
+{
+  return getMapObject()->propertiesRBegin();
+}
+
+MapObject::PropertyIterator Object::propertiesEnd()
+{
+  return getMapObject()->propertiesEnd();
+}
+
+MapObject::PropertyConstIterator Object::propertiesEnd() const
+{
+  return getMapObject()->propertiesEnd();
+}
+
+MapObject::PropertyReverseIterator Object::propertiesREnd()
+{
+  return getMapObject()->propertiesREnd();
+}
+
+MapObject::PropertyConstReverseIterator Object::propertiesREnd() const
+{
+  return getMapObject()->propertiesREnd();
+}
+
 MapUnitPtr Object::getMapObject() const
 {
   return mDirector;
