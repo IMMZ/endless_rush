@@ -24,8 +24,28 @@
   ClassName(ClassName &&obj) = delete;\
   ClassName& operator=(ClassName &&obj) = delete;
 
+#define DECLARE_SMART_PTRS(ClassName)\
+  using ClassName##UniquePtr = std::unique_ptr<ClassName>;\
+  using ClassName##SharedPtr = std::shared_ptr<ClassName>;\
+  using ClassName##WeakPtr = std::weak_ptr<ClassName>
+
+namespace sf
+{
+  class Sprite;
+  class Texture;
+}
+
 namespace ibrengine
 {
+
+// Smart pointer aliases for SFML classes
+using TextureUniquePtr = std::unique_ptr<sf::Texture>;
+using TextureSharedPtr = std::shared_ptr<sf::Texture>;
+using TextureWeakPtr = std::weak_ptr<sf::Texture>;
+
+using SpriteUniquePtr = std::unique_ptr<sf::Sprite>;
+using SpriteSharedPtr = std::shared_ptr<sf::Sprite>;
+using SpriteWeakPtr = std::weak_ptr<sf::Sprite>;
 
 // Types.
 using Point = std::pair<int, int>;

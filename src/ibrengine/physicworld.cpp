@@ -125,8 +125,7 @@ void PhysicWorld::createBody(const PhysicObject &obj)
       const internal::Box *box = dynamic_cast<const internal::Box*>(shape.get());
       b2PolygonShape *polygonShape = new b2PolygonShape;
 
-      constexpr int8_t vertexCount = 4;
-      b2Vec2 vertices[vertexCount] =
+      std::array<b2Vec2,4 > vertices =
       {
           b2Vec2(0.0f, 0.0f),
           b2Vec2(box->getWidth() / PixelsPerUnit, 0.0f),
@@ -146,7 +145,7 @@ void PhysicWorld::createBody(const PhysicObject &obj)
           vertex += b2Vec2(box->getPosition().first / PixelsPerUnit, box->getPosition().second / PixelsPerUnit);
       }
 
-      polygonShape->Set(vertices, vertexCount);
+      polygonShape->Set(vertices.data(), vertices.size());
       newShape = polygonShape;
     }
     else if (shape->getType() == internal::Shape::Type::Circle)

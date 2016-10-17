@@ -43,6 +43,8 @@ private:
   bool mVisible = true;
 };
 
+DECLARE_SMART_PTRS(Layer);
+
 } // namespace ibrengine
 
 #endif // LAYER_HPP

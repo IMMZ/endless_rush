@@ -32,6 +32,7 @@ public:
   PointCRIterator cREndPoints() const;
 
   void addPoint(const Point &p);
+  void addPoint(Point &&p);
   int getPointsCount() const;
   const Point& getPoint(int i) const;
   void setPoint(int i, const Point &p);

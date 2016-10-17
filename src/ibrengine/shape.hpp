@@ -48,6 +48,8 @@ private:
   bool mLinkedToTile = false; // Need for correct positioning of fixture with box2d
 };
 
+DECLARE_SMART_PTRS(Shape);
+
 } // namespace internal
 
 } // namespace ibrengine

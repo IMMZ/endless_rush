@@ -7,7 +7,7 @@
 namespace ibrengine
 {
 
-AnimatableObject::AnimatableObject(const sf::String &name, const MapUnitPtr &director,
+AnimatableObject::AnimatableObject(const sf::String &name, const MapObjectSharedPtr &director,
   int tileId, int id):
   Object(director, Object::Type::Animatable, id)
 {
@@ -22,14 +22,14 @@ void AnimatableObject::update(const sf::Time &time)
 
 void AnimatableObject::addAnimation(const sf::String &animName, Animation *anim)
 {
-  mAnimations.insert(std::make_pair(animName, *anim));
+  mAnimations.insert(std::make_pair(animName, anim));
   if (mCurrentAnim == nullptr)
-    mCurrentAnim = &mAnimations[animName];
+    mCurrentAnim = mAnimations[animName];
 }
 
 void AnimatableObject::setCurrentAnimation(const sf::String &animName)
 {
-  mCurrentAnim = &mAnimations[animName];
+  mCurrentAnim = mAnimations[animName];
 }
 
 int AnimatableObject::getCurrentTileId() const

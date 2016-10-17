@@ -30,18 +30,18 @@ class MapRenderer
 public:
   explicit MapRenderer(sf::RenderTarget &renderTarget);
 
-  void renderMap(const Map *map);
+  void renderMap(const Map &map);
 
 private:
   bool isObjectInView(const DrawableObject &obj) const;
   void loadSprites();
-  void renderImageLayer(const ImageLayerSharedPtr &imgLayer);
-  void renderTileLayer(const TileLayer *layer);
-  void renderObjectLayer(const ObjectLayer *layer);
+  void renderImageLayer(const ImageLayer &imgLayer);
+  void renderTileLayer(const TileLayer &layer);
+  void renderObjectLayer(const ObjectLayer &layer);
   inline sf::Sprite& getSprite(int index);
 
   std::unordered_map<std::string /* layerName */, sf::Sprite> mImgSprites;
-  std::vector<std::shared_ptr<sf::Texture>> mTextures;
+  std::vector<TextureSharedPtr> mTextures;
   std::unique_ptr<sf::Sprite[]> mSprites;
 
   const Map *mMap = nullptr;
@@ -50,7 +50,7 @@ private:
 
 sf::Sprite& MapRenderer::getSprite(int index)
 {
-  return mSprites[index - 1]; // Sprites in tmx starts with index '1', we start with '0'.
+  return mSprites[index - 1]; // Sprites in tmx start with index '1', we start with '0'.
 }
 
 } // namespace ibrengine

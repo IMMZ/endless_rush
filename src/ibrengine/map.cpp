@@ -64,7 +64,7 @@ void Map::setVersion(const std::string &version)
 
 void Map::update(const sf::Time &time)
 {
-  for (std::shared_ptr<Layer> &layer: mLayers)
+  for (const LayerUniquePtr &layer: mLayers)
   {
     ObjectLayer *objLayer = dynamic_cast<ObjectLayer*>(layer.get());
     if (objLayer != nullptr)
@@ -72,9 +72,9 @@ void Map::update(const sf::Time &time)
   }
 }
 
-void Map::addTileset(const std::shared_ptr<Tileset> &tSet)
+void Map::addTileset(TilesetUniquePtr tSet)
 {
-  mTilesets.push_back(tSet);
+  mTilesets.push_back(std::move(tSet));
 }
 
 Map::TilesetIterator Map::tilesetsBegin()
@@ -97,9 +97,9 @@ Map::TilesetConstIterator Map::tilesetsEnd() const
   return mTilesets.cend();
 }
 
-const Tileset* Map::getTilesetAt(int i) const
+const Tileset& Map::getTilesetAt(int i) const
 {
-  return mTilesets.at(i).get();
+  return *mTilesets.at(i);
 }
 
 int Map::getTilesetsCount() const
@@ -107,9 +107,9 @@ int Map::getTilesetsCount() const
   return mTilesets.size();
 }
 
-void Map::addLayer(Layer *layer)
+void Map::addLayer(LayerUniquePtr layer)
 {
-  mLayers.push_back(std::shared_ptr<Layer>(layer));
+  mLayers.push_back(std::move(layer));
 }
 
 Map::LayerIterator Map::layersBegin()
@@ -132,9 +132,9 @@ Map::LayerConstIterator Map::layersEnd() const
   return mLayers.cend();
 }
 
-const Layer* Map::getLayerAt(int i) const
+const Layer& Map::getLayerAt(int i) const
 {
-  return mLayers.at(i).get();
+  return *mLayers.at(i);
 }
 
 int Map::getLayersCount() const
@@ -142,17 +142,17 @@ int Map::getLayersCount() const
   return mLayers.size();
 }
 
-void Map::addAnimation(const std::shared_ptr<Animation> &anim)
+void Map::addAnimation(AnimationUniquePtr anim)
 {
-  mAnimations.insert(std::make_pair(anim.get()->getId(), anim));
+  mAnimations.insert(std::make_pair(anim.get()->getId(), std::move(anim)));
 }
 
-Animation* Map::getAnimation(int animId)
+Animation& Map::getAnimation(int animId)
 {
-  return mAnimations.at(animId).get();
+  return *mAnimations.at(animId);
 }
 
-void Map::addShapeGroup(int tileId, const PhysicObject::ShapeGroup &shapeGrp)
+void Map::addShapeGroup(int tileId, const PhysicObject::ShapeGroup &&shapeGrp)
 {
   mCollisionShapeGroups.insert(std::make_pair(tileId, shapeGrp));
 }

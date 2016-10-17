@@ -3,10 +3,11 @@
 #ifndef ANIMATION_HPP
 #define ANIMATION_HPP
 
+#include "global.hpp"
+
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Clock.hpp>
-
 
 #include <vector>
 
@@ -23,7 +24,7 @@ namespace ibrengine
 class Animation
 {
 public:
-  Animation();
+  Animation() = default;
   explicit Animation(int id);
 
   int getId() const;
@@ -46,6 +47,8 @@ private:
   bool mPlaying = true; // TODO: make false
   bool mIsCycled = true;
 };
+
+DECLARE_SMART_PTRS(Animation);
 
 } // namespace ibrengine
 

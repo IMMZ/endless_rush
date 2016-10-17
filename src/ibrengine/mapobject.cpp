@@ -2,6 +2,7 @@
 
 #include "mapobject.hpp"
 
+#include "map.hpp"
 #include "object.hpp"
 #include "objectlayer.hpp"
 #include "physicobject.hpp"
@@ -13,9 +14,20 @@
 namespace ibrengine
 {
 
-MapObject::MapObject(const sf::String& name):
+MapObject::MapObject(const sf::String& name, Map &map):
+  mMap(map),
   mName(name)
 {
+}
+
+Map& MapObject::getMap()
+{
+  return mMap;
+}
+
+const Map& MapObject::getMap() const
+{
+  return mMap;
 }
 
 void MapObject::setObject(Object *obj)
@@ -186,7 +198,7 @@ void MapObject::animatableObjectChanged(const AnimatableObject &obj)
   if (mDrawableObj != nullptr)
     mDrawableObj->setTileId(obj.getCurrentTileId());
   if (mPhysicalObj != nullptr)
-    mPhysicalObj->setShapeGroup(obj.mMap->getShapeGroup(obj.getCurrentTileId()));
+    mPhysicalObj->setShapeGroup(mMap.getShapeGroup(obj.getCurrentTileId()));
 }
 
 } // namespace ibrengine

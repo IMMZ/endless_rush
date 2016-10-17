@@ -1,7 +1,7 @@
 // TODO: license text
 
-#ifndef DRAWABLEOBJECT_HPP_
-#define DRAWABLEOBJECT_HPP_
+#ifndef DRAWABLEOBJECT_HPP
+#define DRAWABLEOBJECT_HPP
 
 #include "object.hpp"
 
@@ -11,7 +11,7 @@ namespace ibrengine
 class DrawableObject: public Object
 {
 public:
-  explicit DrawableObject(const MapUnitPtr &director, int id);
+  explicit DrawableObject(const MapObjectSharedPtr &director, int id);
 
   int getTileId() const;
   void setTileId(int tileId);
@@ -27,10 +27,8 @@ private:
   int mTileId = -1;
 };
 
-using DrawableObjectScopedPtr = std::unique_ptr<DrawableObject>;
-using DrawableObjectSharedPtr = std::shared_ptr<DrawableObject>;
-using DrawableObjectWeakPtr = std::weak_ptr<DrawableObject>;
+DECLARE_SMART_PTRS(DrawableObject);
 
 } // namespace ibrengine
 
-#endif // DRAWABLEOBJECT_HPP_
+#endif // DRAWABLEOBJECT_HPP

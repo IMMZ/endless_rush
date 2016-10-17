@@ -1,3 +1,4 @@
+
 // TODO: license
 
 #include "ingamestate.hpp"
@@ -29,7 +30,7 @@ void InGameState::draw(sf::RenderTarget &target)
   assert(mMap != nullptr);
   if (mRenderer.get() == nullptr)
     mRenderer.reset(new ibrengine::MapRenderer(target));
-  mRenderer->renderMap(mMap);
+  mRenderer->renderMap(*mMap);
   mPhysicWorld->draw();
 }
 

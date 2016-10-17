@@ -22,7 +22,7 @@ private:
   int mWidth = 0, mHeight = 0;
 };
 
-using ImageLayerSharedPtr = std::shared_ptr<ImageLayer>;
+DECLARE_SMART_PTRS(ImageLayer);
 
 } // namespace ibrengine
 

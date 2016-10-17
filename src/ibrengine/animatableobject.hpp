@@ -25,7 +25,7 @@ class MapObject;
 class AnimatableObject: public Object
 {
 public:
-  AnimatableObject(const sf::String &name, const MapUnitPtr &director, int tileId, int id);
+  AnimatableObject(const sf::String &name, const MapObjectSharedPtr &director, int tileId, int id);
 
   void addAnimation(const sf::String &animName, Animation *anim);
   void setCurrentAnimation(const sf::String &animName);
@@ -37,17 +37,12 @@ public:
   // Object
   void update(const sf::Time &time) override;
 
-  // TODO: refactor!
-  Map *mMap;
-
 private:
-  std::map<sf::String /* name */, Animation> mAnimations;
+  std::map<sf::String /* name */, Animation*> mAnimations;
   Animation *mCurrentAnim = nullptr;
 };
 
-using AnimatableObjectScopedPtr = std::unique_ptr<AnimatableObject>;
-using AnimatableObjectSharedPtr = std::shared_ptr<AnimatableObject>;
-using AnimatableObjectWeakPtr = std::weak_ptr<AnimatableObject>;
+DECLARE_SMART_PTRS(AnimatableObject);
 
 } // namespace ibrengine
 

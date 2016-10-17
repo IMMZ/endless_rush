@@ -31,7 +31,7 @@ public:
     Animatable, ///!< The object is animation.
   };
 
-  Object(const MapUnitPtr &director, Type type, int id);
+  Object(const MapObjectSharedPtr &director, Type type, int id);
   virtual ~Object() = default;
 
   const PositionI& getPosition() const;
@@ -61,18 +61,17 @@ public:
   virtual void update(const sf::Time &time) = 0;
 
 protected:
-  MapUnitPtr getMapObject() const;
+  MapObject& getMapObject();
+  const MapObject& getMapObject() const;
 
 private:
-  MapUnitPtr mDirector;
+  MapObjectSharedPtr mDirector;
   PositionI mPos, mSize;
   int mId = 0; // TODO: change to uint32
   Type mType;
 };
 
-using ObjectScopedPtr = std::unique_ptr<Object>;
-using ObjectSharedPtr = std::shared_ptr<Object>;
-using ObjectWeakPtr = std::weak_ptr<Object>;
+DECLARE_SMART_PTRS(Object);
 
 } // namespace ibrengine
 

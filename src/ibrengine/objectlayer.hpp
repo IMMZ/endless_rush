@@ -21,7 +21,7 @@ public:
   ObjectLayer(const std::string &name, int w, int h);
 
   // Object stuff.
-  void addObject(ObjectScopedPtr &&obj);
+  void addObject(ObjectUniquePtr obj);
 
   int getObjectsCount(Object::Type) const;
   int getTotalObjectsCount() const;
@@ -30,13 +30,13 @@ public:
 
   // Drawable objects.
   using DrawableObjectIterator =
-    std::vector<DrawableObjectScopedPtr>::iterator;
+    std::vector<DrawableObjectUniquePtr>::iterator;
   using DrawableObjectCIterator =
-    std::vector<DrawableObjectScopedPtr>::const_iterator;
+    std::vector<DrawableObjectUniquePtr>::const_iterator;
   using DrawableObjectRIterator =
-    std::vector<DrawableObjectScopedPtr>::reverse_iterator;
+    std::vector<DrawableObjectUniquePtr>::reverse_iterator;
   using DrawableObjectCRIterator =
-    std::vector<DrawableObjectScopedPtr>::const_reverse_iterator;
+    std::vector<DrawableObjectUniquePtr>::const_reverse_iterator;
   
   DrawableObjectIterator beginDrawableObjs();
   DrawableObjectCIterator beginDrawableObjs() const;
@@ -53,13 +53,13 @@ public:
 
   // Animatable objects.
   using AnimatableObjectIterator =
-    std::vector<AnimatableObjectScopedPtr>::iterator;
+    std::vector<AnimatableObjectUniquePtr>::iterator;
   using AnimatableObjectCIterator =
-    std::vector<AnimatableObjectScopedPtr>::const_iterator;
+    std::vector<AnimatableObjectUniquePtr>::const_iterator;
   using AnimatableObjectRIterator =
-    std::vector<AnimatableObjectScopedPtr>::reverse_iterator;
+    std::vector<AnimatableObjectUniquePtr>::reverse_iterator;
   using AnimatableObjectCRIterator =
-    std::vector<AnimatableObjectScopedPtr>::const_reverse_iterator;
+    std::vector<AnimatableObjectUniquePtr>::const_reverse_iterator;
   
   AnimatableObjectIterator beginAnimatableObjs();
   AnimatableObjectCIterator beginAnimatableObjs() const;
@@ -76,13 +76,13 @@ public:
   
   // Physical objects.
   using PhysicalObjectIterator =
-    std::vector<PhysicalObjectScopedPtr>::iterator;
+    std::vector<PhysicObjectUniquePtr>::iterator;
   using PhysicalObjectCIterator =
-    std::vector<PhysicalObjectScopedPtr>::const_iterator;
+    std::vector<PhysicObjectUniquePtr>::const_iterator;
   using PhysicalObjectRIterator =
-    std::vector<PhysicalObjectScopedPtr>::reverse_iterator;
+    std::vector<PhysicObjectUniquePtr>::reverse_iterator;
   using PhysicalObjectCRIterator =
-    std::vector<PhysicalObjectScopedPtr>::const_reverse_iterator;
+    std::vector<PhysicObjectUniquePtr>::const_reverse_iterator;
   
   PhysicalObjectIterator beginPhysicalObjs();
   PhysicalObjectCIterator beginPhysicalObjs() const;
@@ -98,10 +98,12 @@ public:
   PhysicalObjectCRIterator crendPhysicalObjs() const;
 
 private:
-  std::vector<DrawableObjectScopedPtr> mDrawableObjs;
-  std::vector<AnimatableObjectScopedPtr> mAnimatableObjs;
-  std::vector<PhysicalObjectScopedPtr> mPhysicalObjs;
+  std::vector<DrawableObjectUniquePtr> mDrawableObjs;
+  std::vector<AnimatableObjectUniquePtr> mAnimatableObjs;
+  std::vector<PhysicObjectUniquePtr> mPhysicalObjs;
 };
+
+DECLARE_SMART_PTRS(ObjectLayer);
 
 } // namespace ibrengine
 

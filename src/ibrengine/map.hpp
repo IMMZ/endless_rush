@@ -21,11 +21,6 @@ namespace ibrengine
 class Map
 {
 public:
-  using TilesetIterator = std::vector<std::shared_ptr<Tileset>>::iterator;
-  using TilesetConstIterator = std::vector<std::shared_ptr<Tileset>>::const_iterator;
-  using LayerIterator = std::vector<std::shared_ptr<Layer>>::iterator;
-  using LayerConstIterator = std::vector<std::shared_ptr<Layer>>::const_iterator;
-
   using CollisionShapeMap = std::map<int /*tileId */, PhysicObject::ShapeGroup>;
 
   enum class Orientation
@@ -50,36 +45,42 @@ public:
   void update(const sf::Time &time);
 
   // Tileset funcs.
-  void addTileset(const std::shared_ptr<Tileset> &tSet);
+  void addTileset(TilesetUniquePtr tSet);
+
+  using TilesetIterator = std::vector<TilesetUniquePtr>::iterator;
+  using TilesetConstIterator = std::vector<TilesetUniquePtr>::const_iterator;
   TilesetIterator tilesetsBegin();
   TilesetConstIterator tilesetsBegin() const;
   TilesetIterator tilesetsEnd();
   TilesetConstIterator tilesetsEnd() const;
-  const Tileset* getTilesetAt(int i) const;
+  const Tileset& getTilesetAt(int i) const;
   int getTilesetsCount() const;
 
   // Layer funcs.
-  void addLayer(Layer *layer); // TODO: replace by const std::shared<>
+  void addLayer(LayerUniquePtr layer);
+
+  using LayerIterator = std::vector<LayerUniquePtr>::iterator;
+  using LayerConstIterator = std::vector<LayerUniquePtr>::const_iterator;
   LayerIterator layersBegin();
   LayerConstIterator layersBegin() const;
   LayerIterator layersEnd();
   LayerConstIterator layersEnd() const;
-  const Layer* getLayerAt(int i) const;
+  const Layer& getLayerAt(int i) const;
   int getLayersCount() const;
 
   // Animation funcs. TODO: make only 2 funcs with template!
-  void addAnimation(const std::shared_ptr<Animation> &anim);
-  Animation* getAnimation(int animId);
+  void addAnimation(AnimationUniquePtr anim);
+  Animation& getAnimation(int animId);
 
   // Collision shape group funcs.
-  void addShapeGroup(int tileId, const PhysicObject::ShapeGroup &shapeGrp);
+  void addShapeGroup(int tileId, const PhysicObject::ShapeGroup &&shapeGrp);
   const PhysicObject::ShapeGroup& getShapeGroup(int tileId) const;
 
 private:
   CollisionShapeMap mCollisionShapeGroups;
-  std::vector<std::shared_ptr<Tileset>> mTilesets;
-  std::vector<std::shared_ptr<Layer>> mLayers;
-  std::map<int /* id */, std::shared_ptr<Animation>> mAnimations; // TODO: replace by unordered
+  std::vector<TilesetUniquePtr> mTilesets;
+  std::vector<LayerUniquePtr> mLayers;
+  std::map<int /* id */, AnimationUniquePtr> mAnimations; // TODO: replace by unordered
   std::unordered_multimap<int /* tileId */, std::shared_ptr<MapObject>> mCollisionObjs;
   std::string mVersion;
   std::string mAuthor;
@@ -87,6 +88,8 @@ private:
   int mTileW, mTileH;
   Orientation mOrientation;
 };
+
+DECLARE_SMART_PTRS(Map);
 
 } // namespace ibrengine
 

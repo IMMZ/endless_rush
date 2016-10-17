@@ -24,6 +24,8 @@ private:
   int **mTileIds = nullptr;
 };
 
+DECLARE_SMART_PTRS(TileLayer);
+
 } // namespace ibrengine
 
 #endif // TILELAYER_HPP

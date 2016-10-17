@@ -18,6 +18,11 @@ void ChainShape::addPoint(const Point& p)
   mPoints.push_back(p);
 }
 
+void ChainShape::addPoint(Point &&p)
+{
+  mPoints.emplace_back(p);
+}
+
 const Point& ChainShape::getPoint(int i) const
 {
   return mPoints.at(i);

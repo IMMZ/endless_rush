@@ -7,7 +7,7 @@
 namespace ibrengine
 {
 
-DrawableObject::DrawableObject(const MapUnitPtr &director, int id):
+DrawableObject::DrawableObject(const MapObjectSharedPtr &director, int id):
   Object(director, Object::Type::Drawable, id)
 {
   director->setObject(this);
@@ -35,7 +35,7 @@ void DrawableObject::setRotation(float rotation)
 
 bool DrawableObject::isVisible() const
 {
-  return getMapObject()->isVisible();
+  return getMapObject().isVisible();
 }
 
 void DrawableObject::update(const sf::Time &time)

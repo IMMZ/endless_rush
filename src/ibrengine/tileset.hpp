@@ -3,6 +3,8 @@
 #ifndef TILESET_HPP
 #define TILESET_HPP
 
+#include "global.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 
 #include <string>
@@ -36,6 +38,8 @@ private:
   int mTileW, mTileH;
   int mImgW, mImgH;
 };
+
+DECLARE_SMART_PTRS(Tileset);
 
 } // namespace ibrengine
 

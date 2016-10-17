@@ -2,17 +2,12 @@
 
 #include "maprenderer.hpp"
 
+#include "drawableobject.hpp"
 #include "map.hpp"
 #include "objectlayer.hpp"
 #include "tilelayer.hpp"
 
 #include <SFML/Graphics/RenderTarget.hpp>
-
-#include <SFML/Graphics/Font.hpp> // todo remove
-#include <SFML/Graphics/Text.hpp> // todo remove
-
-#include <iostream> // TODO: remove
-#include "drawableobject.hpp"
 
 /*
  * TODO: Render objects.
@@ -26,21 +21,21 @@ MapRenderer::MapRenderer(sf::RenderTarget &renderTarget):
 {
 }
 
-void MapRenderer::renderMap(const Map *map)
+void MapRenderer::renderMap(const Map &map)
 {
-  if (mMap != map)
+  if (mMap != &map)
   {
-    mMap = map;
+    mMap = &map;
     this->loadSprites(); // TODO: do it only once not here in renderMap()
   }
-  for (Map::LayerConstIterator i = map->layersBegin(); i != map->layersEnd(); ++i)
+  for (auto layer = map.layersBegin(); layer != map.layersEnd(); ++layer)
   {
-    if ((*i)->getType() == Layer::Type::Tile && (*i)->isVisible())
-      renderTileLayer(static_cast<TileLayer*>(i->get()));
-    else if ((*i)->getType() == Layer::Type::Object && (*i)->isVisible())
-      renderObjectLayer(static_cast<ObjectLayer*>(i->get()));
-    else if ((*i)->getType() == Layer::Type::Image and (*i)->isVisible())
-      renderImageLayer(std::static_pointer_cast<ImageLayer>(*i));
+    if ((*layer)->getType() == Layer::Type::Tile && (*layer)->isVisible())
+      renderTileLayer(static_cast<TileLayer&>(*(*layer)));
+    else if ((*layer)->getType() == Layer::Type::Object && (*layer)->isVisible())
+      renderObjectLayer(static_cast<ObjectLayer&>(*(*layer)));
+    else if ((*layer)->getType() == Layer::Type::Image and (*layer)->isVisible())
+      renderImageLayer(static_cast<ImageLayer&>(*(*layer)));
   }
 }
 
@@ -66,14 +61,14 @@ bool MapRenderer::isObjectInView(const DrawableObject &mapObj) const
 void MapRenderer::loadSprites()
 {
   int spritesCount = 0;
-  for (Map::TilesetConstIterator i = mMap->tilesetsBegin(); i != mMap->tilesetsEnd(); ++i)
-    spritesCount += i->get()->getTilesCount();
+  for (auto tileset = mMap->tilesetsBegin(); tileset != mMap->tilesetsEnd(); ++tileset)
+    spritesCount += tileset->get()->getTilesCount();
   mSprites.reset(new sf::Sprite[spritesCount]);
   std::cout << "Loaded " << spritesCount << " tiles." << std::endl;
 
-  for (Map::TilesetConstIterator i = mMap->tilesetsBegin(); i != mMap->tilesetsEnd(); ++i)
+  for (auto tileset = mMap->tilesetsBegin(); tileset != mMap->tilesetsEnd(); ++tileset)
   {
-    Tileset *tSet = i->get();
+    Tileset *tSet = tileset->get();
     sf::Image img;
     img.loadFromFile(tSet->getImgSrc());
     img.createMaskFromColor(tSet->getTransparentColor());
@@ -103,29 +98,29 @@ void MapRenderer::loadSprites()
   {
     if ((*it)->getType() == Layer::Type::Image)
     {
-      const ImageLayerSharedPtr &imgLayer = std::static_pointer_cast<ImageLayer>(*it);
+      const ImageLayer &imgLayer = static_cast<ImageLayer&>(*(*it));
       std::shared_ptr<sf::Texture> imgTexture(new sf::Texture);
-      imgTexture->loadFromFile(imgLayer->getImgPath());
+      imgTexture->loadFromFile(imgLayer.getImgPath());
       sf::Sprite imgSprite(*imgTexture);
       imgSprite.setPosition(0.0f, 0.0f);
-      if (imgLayer->getOpacity() < 1.0f)
+      if (imgLayer.getOpacity() < 1.0f)
       {
         sf::Color color = imgSprite.getColor();
-        color.a = 255 * imgLayer->getOpacity();
+        color.a = 255 * imgLayer.getOpacity();
         imgSprite.setColor(color);
       }
-      mImgSprites.insert(std::make_pair(imgLayer->getName(), imgSprite));
+      mImgSprites.insert(std::make_pair(imgLayer.getName(), imgSprite));
       mTextures.push_back(imgTexture);
     }
   }
 }
 
-void MapRenderer::renderImageLayer(const ImageLayerSharedPtr &imgLayer)
+void MapRenderer::renderImageLayer(const ImageLayer &imgLayer)
 {
-  mRenderTarget.draw(mImgSprites.at(imgLayer->getName()));
+  mRenderTarget.draw(mImgSprites.at(imgLayer.getName()));
 }
 
-void MapRenderer::renderTileLayer(const TileLayer *layer)
+void MapRenderer::renderTileLayer(const TileLayer &layer)
 {
   /*
    * We should render only visible tiles to optimize rendering.
@@ -152,15 +147,15 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
   {
     for (int x = xTileFrom; x <= xTileTo; ++x)
     {
-      if (x >= 0 && y >= 0 && layer->getTileId(x, y) > 0)
+      if (x >= 0 && y >= 0 && layer.getTileId(x, y) > 0)
       {
-        sf::Sprite &sprite = this->getSprite(layer->getTileId(x, y));
+        sf::Sprite &sprite = this->getSprite(layer.getTileId(x, y));
         //TODO: extract this
         //TODO: should we set the rotation here?
-        if (layer->getOpacity() < 1.0f)
+        if (layer.getOpacity() < 1.0f)
         {
           sf::Color color = sprite.getColor();
-          color.a = 255 * layer->getOpacity();
+          color.a = 255 * layer.getOpacity();
           sprite.setColor(color);
         }
 
@@ -171,19 +166,19 @@ void MapRenderer::renderTileLayer(const TileLayer *layer)
   }
 }
 
-void MapRenderer::renderObjectLayer(const ObjectLayer *layer)
+void MapRenderer::renderObjectLayer(const ObjectLayer &layer)
 {
-  for (auto i = layer->beginDrawableObjs(); i != layer->endDrawableObjs(); ++i)
+  for (auto i = layer.beginDrawableObjs(); i != layer.endDrawableObjs(); ++i)
   {
     if ((*i)->isVisible())
     {
       sf::Sprite &sprite = this->getSprite((*i)->getTileId());
       sprite.setPosition((*i)->getPosition().first, (*i)->getPosition().second);
       sprite.setRotation((*i)->getRotation());
-      if (layer->getOpacity() < 1.0f)
+      if (layer.getOpacity() < 1.0f)
       {
         sf::Color color = sprite.getColor();
-        color.a = 255 * layer->getOpacity();
+        color.a = 255 * layer.getOpacity();
         sprite.setColor(color);
       }
       mRenderTarget.draw(sprite);

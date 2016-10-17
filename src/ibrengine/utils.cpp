@@ -15,8 +15,9 @@ std::string extractFilenameFromPath(const std::string &filePath)
   return filePath.substr(fileNameStart, filePath.length() - fileNameStart);
 }
 
-void splitString(const std::string &str, char splitChar, bool includeEmpty, std::vector<std::string> &result)
+std::vector<std::string> splitString(const std::string &str, char splitChar, bool includeEmpty)
 {
+  std::vector<std::string> result;
   std::string token;
   for (char c: str)
   {
@@ -31,6 +32,7 @@ void splitString(const std::string &str, char splitChar, bool includeEmpty, std:
     }
   }
   result.push_back(token);
+  return std::move(result);
 }
 
 sf::Color hexColorToSFMLColor(const std::string &hexColor)

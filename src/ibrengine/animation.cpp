@@ -8,10 +8,6 @@
 namespace ibrengine
 {
 
-Animation::Animation()
-{
-}
-
 Animation::Animation(int id):
   mId(id)
 {
@@ -64,8 +60,7 @@ void Animation::stop()
 
 void Animation::reset()
 {
-  mElapsedTime = 0;
-  mCurrentFrame = 0;
+  mElapsedTime = mCurrentFrame = 0;
 }
 
 void Animation::update(const sf::Time &time)
@@ -77,16 +72,11 @@ void Animation::update(const sf::Time &time)
     while (mElapsedTime > currentFrameDuration)
     {
       mElapsedTime -= currentFrameDuration;
-      // Check for last frame.
-      if ((mCurrentFrame + 1) == mFrames.size())
-      {
-        if (mIsCycled)
-          mCurrentFrame = 0;
-      }
+
+      if ((mCurrentFrame + 1) == mFrames.size() && mIsCycled) // Check for last frame.
+        mCurrentFrame = 0;
       else
-      {
         mCurrentFrame++;
-      }
     }
   }
 }

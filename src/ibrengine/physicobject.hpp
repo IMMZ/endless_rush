@@ -28,7 +28,7 @@ public:
     Dynamic = b2_dynamicBody
   };
 
-  explicit PhysicObject(const MapUnitPtr &director, int id, Type t = Type::Static);
+  explicit PhysicObject(const MapObjectSharedPtr &director, int id, Type t = Type::Static);
 
   bool isActive() const;
   void setActive(bool active);
@@ -64,6 +64,7 @@ public:
   void setRestitution(float32 restitution);
   const ShapeGroup& getShapeGroup() const;
   void setShapeGroup(const ShapeGroup &shape);
+  void setShapeGroup(ShapeGroup &&shape);
 
   // Object
   void update(const sf::Time &time) override;
@@ -79,9 +80,7 @@ private:
   Type mType = Type::Static;
 };
 
-using PhysicalObjectScopedPtr = std::unique_ptr<PhysicObject>;
-using PhysicalObjectSharedPtr = std::shared_ptr<PhysicObject>;
-using PhysicalObjectWeakPtr = std::weak_ptr<PhysicObject>;
+DECLARE_SMART_PTRS(PhysicObject);
 
 } // namespace ibrengine
 

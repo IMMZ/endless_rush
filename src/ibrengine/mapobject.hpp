@@ -23,6 +23,7 @@ namespace ibrengine
 
 class AnimatableObject;
 class DrawableObject;
+class Map;
 class Object;
 class ObjectLayer;
 class PhysicObject;
@@ -37,7 +38,10 @@ public:
   using PropertyReverseIterator = std::map<sf::String, sf::String>::reverse_iterator;
   using PropertyConstReverseIterator = std::map<sf::String, sf::String>::const_reverse_iterator;
 
-  explicit MapObject(const sf::String &name);
+  explicit MapObject(const sf::String &name, Map &map);
+
+  Map& getMap();
+  const Map& getMap() const;
 
   // Mediator funcs.
   void setObject(Object *obj);
@@ -73,6 +77,7 @@ private:
   void animatableObjectChanged(const AnimatableObject &obj);
 
   std::map<sf::String /* name */, sf::String /* value */> mProperties;
+  Map &mMap;
   sf::String mName, mType;
   PositionI mPosition;
   DrawableObject *mDrawableObj = nullptr;
@@ -81,7 +86,7 @@ private:
   bool mVisible = true;
 };
 
-using MapUnitPtr = std::shared_ptr<MapObject>;
+DECLARE_SMART_PTRS(MapObject);
 
 } // namespace ibrengine
 

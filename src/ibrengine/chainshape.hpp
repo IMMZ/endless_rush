@@ -18,6 +18,7 @@ public:
   ChainShape();
 
   void addPoint(const Point &p);
+  void addPoint(Point &&p);
   const Point& getPoint(int i) const;
   size_t getPointsCount() const;
   void clear();

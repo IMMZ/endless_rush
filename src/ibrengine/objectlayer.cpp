@@ -10,27 +10,27 @@ ObjectLayer::ObjectLayer(const std::string& name, int w, int h):
 {
 }
 
-void ObjectLayer::addObject(ObjectScopedPtr &&obj)
+void ObjectLayer::addObject(ObjectUniquePtr obj)
 {
   switch (obj->getType())
   {
     case Object::Type::Drawable:
     {
-      DrawableObjectScopedPtr ptr =
+      DrawableObjectUniquePtr ptr =
         internal::dynamic_unique_pointer_cast<Object, DrawableObject>(std::move(obj));
       mDrawableObjs.push_back(std::move(ptr));
       break;
     }
     case Object::Type::Animatable:
     {
-      AnimatableObjectScopedPtr ptr =
+      AnimatableObjectUniquePtr ptr =
         internal::dynamic_unique_pointer_cast<Object, AnimatableObject>(std::move(obj));
       mAnimatableObjs.push_back(std::move(ptr));
       break;
     }
     case Object::Type::Physical:
     {
-      PhysicalObjectScopedPtr ptr =
+      PhysicObjectUniquePtr ptr =
         internal::dynamic_unique_pointer_cast<Object, PhysicObject>(std::move(obj));
       mPhysicalObjs.push_back(std::move(ptr));
       break;
@@ -60,6 +60,8 @@ int ObjectLayer::getTotalObjectsCount() const
 void ObjectLayer::update(const sf::Time &time)
 {
   // TODO: How to update?
+  for (const AnimatableObjectUniquePtr &pAnim: mAnimatableObjs)
+    pAnim->update(time);
 }
 
 // Drawable objects.

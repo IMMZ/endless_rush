@@ -1,7 +1,7 @@
 // TODO: license text
 
 #include "polygonshape.hpp"
-
+#include <iostream>
 namespace ibrengine
 {
 
@@ -83,6 +83,11 @@ PolygonShape::PointCRIterator PolygonShape::cREndPoints() const
 void PolygonShape::addPoint(const Point& p)
 {
   mPoints.push_back(p);
+}
+
+void PolygonShape::addPoint(Point &&p)
+{
+  mPoints.push_back(std::move(p));
 }
 
 int PolygonShape::getPointsCount() const

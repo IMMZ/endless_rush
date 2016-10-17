@@ -6,7 +6,7 @@
 namespace ibrengine
 {
 
-PhysicObject::PhysicObject(const MapUnitPtr &director, int id, Type type):
+PhysicObject::PhysicObject(const MapObjectSharedPtr &director, int id, Type type):
   Object(director, Object::Type::Physical, id),
   mType(type)
 {
@@ -181,6 +181,11 @@ const PhysicObject::ShapeGroup& PhysicObject::getShapeGroup() const
 }
 
 void PhysicObject::setShapeGroup(const ShapeGroup &shape)
+{
+  mShapeGroup = shape;
+}
+
+void PhysicObject::setShapeGroup(ShapeGroup &&shape)
 {
   mShapeGroup = shape;
 }
